@@ -2,26 +2,69 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import HomePage from '../views/HomePage.vue'
 import { useAuthStore } from '@/stores/auth'
+import Tabs from '../components/Tabs.vue'
 
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
-		redirect: '/home'
+		redirect: '/home',
+		meta: {
+			requiresAuth: true
+		}
 	},
 	{
-		path: '/home',
-		name: 'Home',
-		meta: { requiresAuth: true },
-		component: HomePage
+		path: '/',
+		component: Tabs,
+		children: [
+			{
+				path: '',
+				redirect: '/home',
+				meta: {
+					requiresAuth: true
+				}
+			},
+			{
+				path: '/home',
+				name: 'home',
+				component: () => import('../views/HomePage.vue'),
+				meta: {
+					requiresAuth: true
+				}
+			},
+			{
+				path: '/menu',
+				name: 'menu',
+				component: () => import('../views/MenuPage.vue'),
+				meta: {
+					requiresAuth: true
+				}
+			},
+			{
+				path: '/history',
+				name: 'history',
+				component: () => import('../views/HistoryPage.vue'),
+				meta: {
+					requiresAuth: true
+				}
+			},
+			{
+				path: '/settings',
+				name: 'settings',	
+				component: () => import('../views/SettingsPage.vue'),
+				meta: {
+					requiresAuth: true
+				}
+			},
+		],
 	},
 	{
 		path: '/login',
-		name: 'Login',
+		name: 'login',
 		component: () => import('../views/LoginPage.vue')
 	},
 	{
 		path: '/logout',
-		name: 'Logout',
+		name: 'logout',
 		component: () => import('../views/LogoutPage.vue')
 	}
 ]
