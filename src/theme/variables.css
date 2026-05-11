@@ -1,2 +1,29 @@
 /* For information on how to create your own theme, please refer to:
 http://ionicframework.com/docs/theming/ */
+
+
+/* primariy color */ 
+
+:root {
+    --ion-color-primary: #9b8214;
+    --ion-color-primary-rgb: 140, 122, 20;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #6e6110;
+    --ion-color-primary-tint: #b39b5c;
+}
+
+.outline-badge
+{
+	padding: 2px 6px;
+	border-radius: 50%;
+    border: 1px solid var(--ion-color-primary);
+
+    --background: transparent;
+	--color: var(--ion-color-primary);
+}
+
+.bold-icon {
+  font-size: 2em;      /* plus gros = effet “gras” */
+  --ionicon-stroke-width: 2em; /* rend l’icône plus épaisse */
+}
