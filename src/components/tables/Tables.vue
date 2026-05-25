@@ -1,20 +1,6 @@
 <template>
-		<ion-header :translucent="true">
-			<ion-toolbar color="base">
-				<ion-buttons slot="start">
-					<ion-menu-button></ion-menu-button>
-				</ion-buttons>
-				<ion-title>{{ appName }}</ion-title>
-
-				<ion-buttons slot="end">
-					<ion-button v-if="!isLoggedIn" router-link="/login">
-						<ion-icon :icon="logIn"></ion-icon>
-					</ion-button>
-					<ion-button v-else router-link="/logout" >
-						<ion-icon :icon="logOut"></ion-icon>
-					</ion-button>
-				</ion-buttons>
-			</ion-toolbar>
+		<ion-header :translucent="false">
+			<Toolbar :title="appName" />
 		</ion-header>
 
 		<ion-content :fullscreen="true">
@@ -167,6 +153,7 @@ import { supabase } from '../../utils/supabase';
 import { onMounted, ref, markRaw, computed, onUnmounted } from 'vue';
 import TablesDetails from './TablesDetails.vue';
 import { getElapsed } from '../../utils/functions';
+import Toolbar from '../Toolbar.vue';
 
 const tablesDetails = markRaw(TablesDetails);
 const auth = useAuthStore()
@@ -302,7 +289,6 @@ onUnmounted(() => {
 	align-items: center;
 	justify-content: space-between;
 }
-
 
 .tables {
 

@@ -27,3 +27,7 @@ http://ionicframework.com/docs/theming/ */
   font-size: 2em;      /* plus gros = effet “gras” */
   --ionicon-stroke-width: 2em; /* rend l’icône plus épaisse */
 }
+
+.bg-dark {
+	--ion-color-base: #121212;
+}
