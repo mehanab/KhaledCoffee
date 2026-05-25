@@ -7,7 +7,7 @@ import Tabs from '../components/Tabs.vue'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
-		redirect: '/home',
+		redirect: 'home',
 		meta: {
 			requiresAuth: true
 		}
@@ -18,13 +18,13 @@ const routes: Array<RouteRecordRaw> = [
 		children: [
 			{
 				path: '',
-				redirect: '/home',
+				redirect: 'home',
 				meta: {
 					requiresAuth: true
 				}
 			},
 			{
-				path: '/home',
+				path: 'home',
 				name: 'home',
 				component: () => import('../views/HomePage.vue'),
 				meta: {
@@ -32,7 +32,7 @@ const routes: Array<RouteRecordRaw> = [
 				}
 			},
 			{
-				path: '/menu',
+				path: 'menu',
 				name: 'menu',
 				component: () => import('../views/MenuPage.vue'),
 				meta: {
@@ -40,7 +40,7 @@ const routes: Array<RouteRecordRaw> = [
 				}
 			},
 			{
-				path: '/history',
+				path: 'history',
 				name: 'history',
 				component: () => import('../views/HistoryPage.vue'),
 				meta: {
@@ -48,7 +48,7 @@ const routes: Array<RouteRecordRaw> = [
 				}
 			},
 			{
-				path: '/settings',
+				path: 'settings',
 				name: 'settings',	
 				component: () => import('../views/SettingsPage.vue'),
 				meta: {
