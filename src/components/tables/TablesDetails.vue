@@ -76,7 +76,7 @@
             <ion-icon :icon="lockOpen" slot="start"></ion-icon>
             <ion-text>Désactiver</ion-text>
         </ion-button>
-         <ion-button v-if="!table.cart" expand="block" color="success" fill="outline" class="ion-flex-grow-1" size="large" @click="setOpen(true)">
+         <ion-button v-if="!table.cart" expand="block" color="success" fill="outline" class="ion-flex-grow-1" size="large" @click="setOpen(true)" :disabled="disableBtns">
             <ion-icon :icon="lockOpen" slot="start"></ion-icon>
             <ion-text>Ouvrir la table</ion-text>
         </ion-button>
@@ -95,7 +95,7 @@
                 <ion-item>
                     <ion-input label="Nombre de personnes" type="number" v-model="cartPeople"></ion-input>
                  </ion-item>
-                <ion-button expand="block" color="success" @click="openTable()">
+                <ion-button expand="block" color="success" @click="openUpdateTable()">
                     <ion-icon :icon="lockOpen" slot="start"></ion-icon>
                     <ion-text>Confirmer</ion-text>
                  </ion-button>  
@@ -105,16 +105,15 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonPage, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter } from '@ionic/vue';
+import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonPage, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonNavLink, IonNav } from '@ionic/vue';
 import { arrowBackOutline, people, add, create, lockClosed, lockOpen } from 'ionicons/icons';
 import { getElapsed } from '../../utils/functions';
 import { supabase } from '../../utils/supabase';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-const router = useRouter();
+import { ref, inject } from 'vue';
 
 const isOpen = ref(false);
 const setOpen = (open: boolean) => (isOpen.value = open);
+const disableBtns = ref(false);
 
 const props = defineProps({
     table: {
@@ -126,7 +125,7 @@ const props = defineProps({
 const cartLibelle = ref(props.table.cart ? props.table.cart.libelle : '');
 const cartPeople = ref(props.table.cart ? props.table.cart.guests : 0);
 
-function openTable() {
+function openUpdateTable() {
     supabase.from('carts').upsert({
         id: props.table.cart ? props.table.cart.id : undefined, // If cart exists, use its ID to update, otherwise create new
         table_id: props.table.id,
@@ -148,6 +147,9 @@ function openTable() {
     });
 }
 
+// nav est fourni par le composant parent (HomePage) via provide/inject pour permettre la navigation depuis ce composant modal vers la liste des tables après une mise à jour.
+const nav = inject<any>('ionNav');
+
 function setTableUnavailable(tableId: number) {
 	supabase.from('tables').update({ status: 'unavailable' }).eq('id', tableId).select().then(({ data, error }) => {
 		if (error) {
@@ -156,8 +158,11 @@ function setTableUnavailable(tableId: number) {
 			console.log('Table updated:', data);
             // Update the table's status locally
             props.table.status = 'unavailable';
+
+            // disable the openTableActivate button
+            disableBtns.value = true;
             // navigate back to the tables list
-            router.go(-1);
+            nav?.value?.$el.popToRoot();
 		}
 	});
 }
