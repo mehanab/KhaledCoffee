@@ -68,7 +68,7 @@
             <ion-icon :icon="create" slot="start"></ion-icon>
            <ion-text>modifier</ion-text>
        </ion-button>
-       <ion-button v-if="table.cart" color="danger" fill="outline" :strong="true" size="large" expand="block">
+       <ion-button v-if="table.cart" color="danger" fill="outline" :strong="true" size="large" expand="block" @click="setAcceptCloseTable(true)">
             <ion-icon :icon="lockClosed" slot="start"></ion-icon>
             <ion-text>Fermer la table</ion-text>
         </ion-button>
@@ -101,11 +101,29 @@
                  </ion-button>  
             </ion-content>
         </ion-modal>
+
+        <ion-alert  :is-open="isAlertOpen"
+            header="Erreur"
+            sub-header="Une erreur est survenue"
+            message="Une erreur est survenue lors de la mise à jour de la table."
+            :buttons="alertButtons"
+            @didDismiss="setAlertOpen(false)"
+            >
+        </ion-alert>
+
+        <ion-alert  :is-open="acceptCloseTable"
+            header="Confirmation"
+            sub-header="Voulez-vous vraiment fermer la table ?"
+            message="Cette action est irréversible."
+            :buttons="acceptCloseTableButtons"
+            @didDismiss="setAcceptCloseTable(false)"
+            >
+        </ion-alert>
     </ion-footer>
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonPage, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonNavLink, IonNav } from '@ionic/vue';
+import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonPage, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter } from '@ionic/vue';
 import { arrowBackOutline, people, add, create, lockClosed, lockOpen } from 'ionicons/icons';
 import { getElapsed } from '../../utils/functions';
 import { supabase } from '../../utils/supabase';
@@ -114,6 +132,37 @@ import { ref, inject } from 'vue';
 const isOpen = ref(false);
 const setOpen = (open: boolean) => (isOpen.value = open);
 const disableBtns = ref(false);
+const isAlertOpen = ref(false);
+
+// alert state and buttons
+const setAlertOpen = (open: boolean) => (isAlertOpen.value = open);
+const alertButtons = [
+    {
+        text: 'Fermer',
+        role: 'cancel',
+        handler: () => {            
+            setAlertOpen(false);
+        }
+    }
+];
+
+const acceptCloseTable = ref(false);
+const setAcceptCloseTable = (open: boolean) => (acceptCloseTable.value = open);
+const acceptCloseTableButtons = [
+    {
+        text: 'Confirmer',
+        handler: () => {            
+            setAcceptCloseTable(false);
+        }
+    },
+    {
+        text: 'Annuler',
+        role: 'cancel',
+        handler: () => {            
+            setAcceptCloseTable(false);
+        }
+    }
+];
 
 const props = defineProps({
     table: {
@@ -134,6 +183,7 @@ function openUpdateTable() {
         libelle: cartLibelle.value
     }).select().then(({ data, error }) => {
         if (error) {
+            setAlertOpen(true);
             console.error('Error creating cart:', error);
         } else {
             // close the modal
@@ -153,9 +203,9 @@ const nav = inject<any>('ionNav');
 function setTableUnavailable(tableId: number) {
 	supabase.from('tables').update({ status: 'unavailable' }).eq('id', tableId).select().then(({ data, error }) => {
 		if (error) {
+			setAlertOpen(true);
 			console.error('Error updating table:', error);
 		} else {
-			console.log('Table updated:', data);
             // Update the table's status locally
             props.table.status = 'unavailable';
 
