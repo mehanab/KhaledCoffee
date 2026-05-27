@@ -89,7 +89,7 @@
 							</ion-text>
 						</ion-item>
 						<ion-item-options slot="end">
-							<ion-item-option color="success" @click="setTableAvailable(table.id)">
+							<ion-item-option color="success" @click="setTableStatus(table.id, 'available')">
 								<ion-icon slot="icon-only" :icon="flash"></ion-icon>
 							</ion-item-option>
 						</ion-item-options>
@@ -146,21 +146,22 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonList, IonItem, IonIcon, IonNavLink, IonButtons, IonLabel, IonMenu, IonFab, IonFabButton, IonMenuButton, IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonAvatar, IonText, onIonViewWillEnter, IonModal, IonInput, IonSelect, IonSelectOption, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/vue';
-import { logIn, logOut, add, peopleOutline, timeOutline, checkmarkOutline, flash } from 'ionicons/icons';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, IonIcon, IonNavLink, IonButtons, IonLabel, IonFab, IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonAvatar, IonText, onIonViewWillEnter, IonModal, IonInput, IonSelect, IonSelectOption, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/vue';
+import { add, peopleOutline, timeOutline, checkmarkOutline, flash } from 'ionicons/icons';
 import { useAuthStore } from '@/stores/auth'
-import { supabase } from '../../utils/supabase';
 import { onMounted, ref, markRaw, computed, onUnmounted } from 'vue';
 import TablesDetails from './TablesDetails.vue';
 import { getElapsed } from '../../utils/functions';
 import Toolbar from '../Toolbar.vue';
 
+import { useTableStore } from '../../stores/tableStore';
+const tableStore = useTableStore();
+
 const tablesDetails = markRaw(TablesDetails);
-const auth = useAuthStore()
-const isLoggedIn = auth.isLoggedIn
+const auth = useAuthStore();
 const appName = import.meta.env.VITE_APP_NAME || 'Khaffee Shop'
 
-const tables = ref<any[]>([])
+const tables = computed(() => tableStore.tables);
 const error = ref<any>(null)
 
 const openedTables = computed(() => tables.value.filter(table => table.cart).sort((a, b) => a.number < b.number ? -1 : 1))
@@ -176,25 +177,29 @@ const cartLocation = ref('salle');
 const cartNumber = ref('');
 const isValidNumber = ref(false);
 
-function createTable() {
+async function createTable() {
 	if(!cartNumber.value || !isValidNumber.value || !cartStatus.value || !cartLocation.value) {
+		cartInput.value.$el.classList.add('ion-touched');
+		if (!cartNumber.value || !isValidNumber.value) cartInput.value.$el.classList.add('ion-invalid');
+		if (!cartStatus.value) cartStatus.value = 'available';
+		if (!cartLocation.value) cartLocation.value = 'salle';
 		return;
 	}
-	supabase.from('tables').insert({
+
+	const table = {
 		number: cartNumber.value,
 		status: cartStatus.value,
 		location: cartLocation.value
-	}).select().then(({ data, error }) => {
-		if (error) {
-			console.error('Error creating table:', error);
-		} else {
-			//close the modal
-			setOpen(false);
-			console.log('Table created:', data);
-			tables.value.push(data[0]);
-			setOpen(false);
-		}
-	});
+	}
+
+	try {		
+		// Call the store action to create a new table
+		await tableStore.createTable(table);
+		setOpen(false);
+		console.log('Table created:', table);
+	} catch (error) {
+		console.error('Error creating table:', error);
+	}
 }
 
 const getValidationNumber = (event: any) => {
@@ -212,33 +217,21 @@ const markTouched = () => {
 	cartInput.value.$el.classList.add('ion-touched');
 };
 
-function setTableAvailable(tableId: number) {
-	supabase.from('tables').update({ status: 'available' }).eq('id', tableId).select().then(({ data, error }) => {
-		if (error) {
-			console.error('Error updating table:', error);
-		} else {
-			console.log('Table updated:', data);
-			const table = tables.value.find((t: any) => t.id === tableId);
-			if (table) {
-				table.status = 'available';
-			}
-		}
-	});
+async function setTableStatus(tableId: number, status: 'available' | 'unavailable') {
+	try {
+		// Call the store action to set the table status
+		await tableStore.setTableStatus(tableId, status);
+	} catch (error) {
+		console.error('Error updating table status:', error);
+	}
 }
 
 onMounted(async () => {
-	const { data, error: err } = await supabase
-		.from('tables')
-		.select(`*, carts (*)`)
-		.limit(1, { referencedTable: 'carts' })
-
-	if (err) {
-		error.value = err
-	} else {
-		tables.value = data.map((table: any) => ({
-			...table,
-			cart: table.carts?.[0] ?? null
-		}))
+	try {
+		await tableStore.fetchTables();
+		
+	} catch (err) {
+		error.value = err;
 	}
 
 	// update time every second

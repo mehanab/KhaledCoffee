@@ -72,7 +72,7 @@
             <ion-icon :icon="lockClosed" slot="start"></ion-icon>
             <ion-text>Fermer la table</ion-text>
         </ion-button>
-         <ion-button v-if="!table.cart" expand="block" color="medium" fill="outline"  size="large" @click="setTableUnavailable(table.id)">
+         <ion-button v-if="!table.cart" expand="block" color="medium" fill="outline"  size="large" @click="setTableStatus(table.id, 'unavailable')" :disabled="disableBtns">
             <ion-icon :icon="lockOpen" slot="start"></ion-icon>
             <ion-text>Désactiver</ion-text>
         </ion-button>
@@ -123,11 +123,15 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonPage, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter } from '@ionic/vue';
+import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonPage, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonAlert } from '@ionic/vue';
 import { arrowBackOutline, people, add, create, lockClosed, lockOpen } from 'ionicons/icons';
 import { getElapsed } from '../../utils/functions';
-import { supabase } from '../../utils/supabase';
 import { ref, inject } from 'vue';
+
+import { useTableStore } from '../../stores/tableStore';
+import { useCartStore } from '../../stores/CartStore';
+const tableStore = useTableStore();
+const cartStore = useCartStore();
 
 const isOpen = ref(false);
 const setOpen = (open: boolean) => (isOpen.value = open);
@@ -174,47 +178,51 @@ const props = defineProps({
 const cartLibelle = ref(props.table.cart ? props.table.cart.libelle : '');
 const cartPeople = ref(props.table.cart ? props.table.cart.guests : 0);
 
-function openUpdateTable() {
-    supabase.from('carts').upsert({
-        id: props.table.cart ? props.table.cart.id : undefined, // If cart exists, use its ID to update, otherwise create new
-        table_id: props.table.id,
-        total: props.table.cart ? props.table.cart.total : '0',
-        guests: cartPeople.value,
-        libelle: cartLibelle.value
-    }).select().then(({ data, error }) => {
-        if (error) {
-            setAlertOpen(true);
-            console.error('Error creating cart:', error);
-        } else {
-            // close the modal
-            setOpen(false);
-            console.log('Cart created successfully:', data);
-            // Update the table's cart to reflect the new cart
-            if (data && data.length > 0) {
-                props.table.cart = data[0]; // Assuming the upsert returns the created/updated cart
-            }
-        }
-    });
+async function openUpdateTable() {
+
+    try {
+        // Call the store action to update the table's cart
+        const updatedCart = await cartStore.upsertCart({
+            id: props.table.cart ? props.table.cart.id : undefined,
+            table_id: props.table.id,
+            total: props.table.cart ? props.table.cart.total : '0',
+            guest_count: cartPeople.value,
+            libelle: cartLibelle.value,
+        });
+        setOpen(false);
+        props.table.cart = updatedCart;
+    } catch (error) {
+        console.error('Error updating table cart:', error);
+        setAlertOpen(true);
+    }
 }
 
 // nav est fourni par le composant parent (HomePage) via provide/inject pour permettre la navigation depuis ce composant modal vers la liste des tables après une mise à jour.
 const nav = inject<any>('ionNav');
 
-function setTableUnavailable(tableId: number) {
-	supabase.from('tables').update({ status: 'unavailable' }).eq('id', tableId).select().then(({ data, error }) => {
-		if (error) {
-			setAlertOpen(true);
-			console.error('Error updating table:', error);
-		} else {
-            // Update the table's status locally
-            props.table.status = 'unavailable';
+async function setTableStatus(tableId: number, status: 'available' | 'unavailable') {
+    // check correct param status : available or unavailable 
+    if (status !== 'available' && status !== 'unavailable') {
+        console.error('Invalid status:', status);
+        setAlertOpen(true);
+        return;
+    }
 
-            // disable the openTableActivate button
-            disableBtns.value = true;
-            // navigate back to the tables list
-            nav?.value?.$el.popToRoot();
-		}
-	});
+    try {
+    // Call the store action to set the table as unavailable
+        await tableStore.setTableStatus(tableId, status);
+
+        // Update the table's status locally
+        props.table.status = status;
+        // disable the openTableActivate button
+        disableBtns.value = true;
+        // navigate back to the tables list
+        nav?.value?.$el.popToRoot();
+
+    } catch (error) {
+        console.error('Error setting table unavailable:', error);
+        setAlertOpen(true);
+    }
 }
 </script>
 
