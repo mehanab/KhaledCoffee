@@ -55,7 +55,7 @@
                     </ion-label>
                 </ion-item>
             </ion-list>
-             <ion-button expand="block" color="medium" type="button" class="ion-margin-top" fill="outline">
+             <ion-button expand="block" color="medium" type="button" class="ion-margin-top" fill="outline" :disabled="!table.cart">
                 <ion-icon :icon="add"></ion-icon>
                 <ion-text class="ion-padding-start">Ajouter des articles</ion-text>
             </ion-button>
