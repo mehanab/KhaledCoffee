@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-    import { IonToolbar, IonTitle, IonButtons, IonButton, IonIcon } from '@ionic/vue';
+    import { IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, IonMenuButton } from '@ionic/vue';
     import { logIn, logOut } from 'ionicons/icons';
     import { useAuthStore } from '@/stores/auth';
 
