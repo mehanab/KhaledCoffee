@@ -55,11 +55,11 @@
                     </ion-label>
                 </ion-item>
             </ion-list>
-             <ion-button expand="block" color="medium" type="button" class="ion-margin-top" fill="outline" :disabled="!table.cart">
+             <ion-button expand="block" color="medium" type="button" class="ion-margin-top" fill="outline" :disabled="!table.cart" id="open-modal">
                 <ion-icon :icon="add"></ion-icon>
                 <ion-text class="ion-padding-start">Ajouter des articles</ion-text>
             </ion-button>
-
+            <add-to-cart :table="table"></add-to-cart>
     </ion-content>
 
     <ion-footer class="ion-display-flex ion-justify-content-center ion-padding">
@@ -131,6 +131,7 @@ import { ref, inject } from 'vue';
 import { useTableStore } from '../../stores/tableStore';
 import { useCartStore } from '../../stores/cartStore';
 import { useOrderStore } from '../../stores/orderStore';
+import AddToCart from '../modals/AddToCart.vue';
 const tableStore = useTableStore();
 const cartStore = useCartStore();
 const orderStore = useOrderStore();
