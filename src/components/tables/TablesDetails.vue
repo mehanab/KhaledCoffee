@@ -5,7 +5,7 @@
                 <ion-back-button text="" :icon="arrowBackOutline"></ion-back-button>
             </ion-buttons>
             <!-- center title -->
-            <ion-title>Détails table {{ table.number }} {{ table.cart ? ' - ' + table.cart.libelle : '' }}</ion-title>
+            <ion-title>Détails table {{ table.number }} {{ table.cart && table.cart.libelle ? ' - ' + table.cart.libelle : '' }}</ion-title>
         </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
@@ -129,9 +129,11 @@ import { getElapsed } from '../../utils/functions';
 import { ref, inject } from 'vue';
 
 import { useTableStore } from '../../stores/tableStore';
-import { useCartStore } from '../../stores/CartStore';
+import { useCartStore } from '../../stores/cartStore';
+import { useOrderStore } from '../../stores/orderStore';
 const tableStore = useTableStore();
 const cartStore = useCartStore();
+const orderStore = useOrderStore();
 
 const isOpen = ref(false);
 const setOpen = (open: boolean) => (isOpen.value = open);
@@ -155,7 +157,43 @@ const setAcceptCloseTable = (open: boolean) => (acceptCloseTable.value = open);
 const acceptCloseTableButtons = [
     {
         text: 'Confirmer',
-        handler: () => {            
+        handler: async () => {
+            //insert order
+            if (props.table.cart) {
+                try {
+                    await orderStore.createOrder({
+                        table_id: props.table.id,
+                        guests: props.table.cart.guests,
+                        total: props.table.cart.total,
+                        libelle: props.table.cart.libelle,
+                        user_id: props.table.cart.user_id,
+                    }, props.table.cart.carts_items.map((item: any) => ({
+                        product_name: item.name,
+                        category_name: item.category_name,
+                        product_unit_price: item.price,
+                        total_price: item.price * item.quantity,
+                        quantity: item.quantity,
+                        product_image_path: item.image_path
+                    })));
+
+                } catch (error) {
+                    console.error('Error inserting order:', error);
+                    setAlertOpen(true);
+                    return;
+                }
+            
+                //delete cart
+                try {
+                    await cartStore.deleteCart(props.table.cart.id);
+                } catch (error) {
+                    console.error('Error deleting cart:', error);
+                    setAlertOpen(true);
+                    return;
+                }
+
+                props.table.cart = null;
+                await setTableStatus(props.table.id, 'available');
+            }
             setAcceptCloseTable(false);
         }
     },
