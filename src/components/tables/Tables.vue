@@ -15,7 +15,7 @@
 						<div class="tables-header ">
 							<ion-label slot="end">Tables ouvertes</ion-label>
 							<ion-badge class="ion-margin outline-badge">
-								{{ tables.filter(table => table.cart).length ?? '0' }}
+								{{ openedTables.length ?? '0' }}
 							</ion-badge>
 						</div>
 						<ion-text color="medium" class="ion-text-end">
@@ -48,6 +48,14 @@
 						</ion-item>
 					</ion-nav-link>
 
+					<div class="ion-display-flex ion-justify-content-between ion-align-items-center">
+						<div class="tables-header ">
+							<ion-label slot="end">Tables disponibles</ion-label>
+							<ion-badge class="ion-margin outline-badge">
+								{{ closedTables.length ?? '0' }}
+							</ion-badge>
+						</div>
+					</div>
 					<ion-nav-link v-if="closedTables.length" v-for="table in closedTables" :key="table.id" router-direction="forward" :component="tablesDetails" :component-props="{ table: table }">
 							<ion-item :button="true" class="ion-display-flex table closed" lines="none">
 								<ion-avatar slot="start">
@@ -69,6 +77,14 @@
 							</ion-item>
 					</ion-nav-link>
 
+					<div class="ion-display-flex ion-justify-content-between ion-align-items-center">
+						<div class="tables-header ">
+							<ion-label slot="end">Tables indisponibles</ion-label>
+							<ion-badge class="ion-margin outline-badge">
+								{{ unavailableTables.length ?? '0' }}
+							</ion-badge>
+						</div>
+					</div>
 					<ion-item-sliding v-if="unavailableTables.length" v-for="table in unavailableTables" :key="table.id" class="table">
 						<ion-item :button="true" :disabled="table.status === 'unavailable'" class="ion-display-flex unavailable" lines="none">
 							<ion-avatar slot="start">
@@ -302,7 +318,7 @@ onUnmounted(() => {
 		}
 
 		&.opened {
-			--border-width: 0 1px 0 1px;
+			--border-width: 0 0px 0 0px;
 			--border-style: solid;
 			--border-color: var(--ion-color-primary);
 		}
