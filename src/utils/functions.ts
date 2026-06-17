@@ -6,9 +6,9 @@ function getElapsed(createdAt: string | Date, currentTime: Date = new Date()): s
 
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    if (hours === 0) {
-      return `${remainingMinutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
+    // if (hours === 0) {
+    //   return `${remainingMinutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // }
 
     return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
