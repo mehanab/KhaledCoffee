@@ -45,13 +45,13 @@
                     </ion-col>
                 </ion-row>
             </ion-grid>
-            <ion-list v-if="table.cart?.items && table.cart.items.length > 0">
-                <ion-item v-for="(item, index) in table.cart?.items || []" :key="index">
+            <ion-list v-if="table.cart?.carts_items && table.cart.carts_items.length > 0">
+                <ion-item v-for="(item, index) in table.cart?.carts_items || []" :key="index">
                     <ion-label>
                         <h2>{{ item.name }}</h2>
-                        <p>Prix unitaire : {{ parseFloat(item.price).toFixed(2) }} DA</p>
+                        <p>Prix unitaire : {{ parseFloat(item.product_unit_price).toFixed(2) }} DA</p>
                         <p>Quantité : {{ item.quantity }}</p>
-                        <p>Total : {{ (parseFloat(item.price) * item.quantity).toFixed(2) }} DA</p>
+                        <p>Total : {{ parseFloat(item.total_price).toFixed(2) }} DA</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
