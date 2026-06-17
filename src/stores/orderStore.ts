@@ -24,23 +24,24 @@ export const useOrderStore = defineStore('order', {
             }
         },
 
-        async createOrder(
-                        order: { 
-                            table_id: number, 
-                            guests: number, 
-                            total: number, 
-                            libelle?: string, 
-                            user_id?: number
-                        }, 
-                        orderItems: { 
-                            product_name: string, 
-                            category_name: string, 
-                            product_unit_price: number, 
-                            total_price: number, 
-                            quantity: number, 
-                            product_image_path?: string
-                        }[]) {
-            order.user_id = order.user_id ?? authStore.user?.id ?? null;
+        async createOrder(cart: any) {
+            
+            const order = { 
+                table_id: cart.table_id, 
+                guests: cart.guests, 
+                total: cart.total, 
+                libelle: cart.libelle, 
+                user_id: cart.user_id ?? authStore.user?.id ?? null
+            };
+            const orderItems = cart.carts_items.map((item: any) => ({
+                product_name: item.name,
+                category_name: item.category_name,
+                product_unit_price: item.price,
+                total_price: item.price * item.quantity,
+                quantity: item.quantity,
+                product_image_path: item.image_path
+            }));
+
             try {
                 const { data, error } = await supabase
                     .from('orders')
@@ -57,7 +58,7 @@ export const useOrderStore = defineStore('order', {
                 if(orderItems.length > 0) {
                     const {data: dataItems, error: itemsError } = await supabase
                         .from('orders_items')
-                        .insert(orderItems.map(item => ({ ...item, order_id: orderId })));
+                        .insert(orderItems.map((item: any) => ({ ...item, order_id: orderId })));
                     if (itemsError) throw itemsError;
 
                     data.order_items = dataItems;
