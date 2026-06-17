@@ -38,12 +38,12 @@
 										<ion-icon :icon="peopleOutline" class="ion-margin-end bold-icon"></ion-icon>
 										{{ table.cart.guests }} personnes
 									</ion-text>
-									<p>Ouverte {{ new Date(table.cart.created_at).toLocaleString('dz-DZ', { dateStyle: 'short', timeStyle: 'short' }) }}</p>
+									<p>Ouverte {{ new Date(table.cart.created_at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) }}</p>
 								</ion-text>
 							</ion-label>
 							<ion-text v-if="table.cart" color="primary" class="ion-margin ion-text-end">
 								<ion-text color="secondary">{{ parseFloat(table.cart?.total || '0').toFixed(2) }} DA</ion-text>
-								<p>{{ getElapsed(table.cart.created_at, new Date(now)) }}</p>
+								<p>{{ getElapsed(table.cart.created_at, now) }}</p>
 							</ion-text>
 						</ion-item>
 					</ion-nav-link>
@@ -242,6 +242,10 @@ async function setTableStatus(tableId: number, status: 'available' | 'unavailabl
 	}
 }
 
+// update time in getElapsed 
+const now = ref(new Date())
+let interval: any
+
 onMounted(async () => {
 	try {
 		await tableStore.fetchTables();
@@ -252,13 +256,10 @@ onMounted(async () => {
 
 	// update time every second
 	interval = setInterval(() => {
-		now.value = Date.now()
+		now.value = new Date()
 	}, 1000)
 })
 
-// update time in getElapsed 
-const now = ref(Date.now())
-let interval: any
 onUnmounted(() => {
 	clearInterval(interval)
 })
