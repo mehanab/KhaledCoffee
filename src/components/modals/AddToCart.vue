@@ -12,15 +12,15 @@
         <ion-content :fullscreen="true">
             <ion-card color="base" :bordered="false">
 				<ion-card-header>
-                    <ion-searchbar @click="" placeholder="Rechercher"></ion-searchbar>
-                    <ion-segment scrollable>
+                    <ion-searchbar @ionInput="handleSearchProducts($event)" placeholder="Rechercher" ></ion-searchbar>
+                    <ion-segment scrollable v-model="selectedCategory" @ionChange="handleSegmentChange($event)">
                          <ion-segment-button value="all">
-                            <ion-label> Toutes </ion-label>
+                            <ion-label>Toutes</ion-label>
                         </ion-segment-button>
                         <ion-segment-button
                             v-for="category in categories"
                             :key="category.id"
-                            :value="category.id"
+                            :value="category.name"
                         >
                             <ion-label>{{ category.name }}</ion-label>
                         </ion-segment-button>
@@ -28,7 +28,7 @@
                 </ion-card-header>
 
                 <ion-card-content class="products">
-                    <div v-for="(products, category) in groupedByCategory" :key="category" color="primary" outline>
+                    <div v-for="(products, category) in filteredGroupedByCategory" :key="category" color="primary" outline>
                         <ion-label>{{ category }}</ion-label>
 
                         <ion-item v-for="product in products" :key="product.id" :button="true" class="ion-display-flex product opened ion-marging" lines="none">
@@ -40,6 +40,10 @@
                                 {{ product.name }}
                                 <p>{{ product.unit_price }} €</p>
                             </ion-label>
+                            <ion-note slot="end" class="">{{ currentTable.cart?.carts_items?.find((item: any) => item.product_id === product.id)?.quantity || 0 }}</ion-note>
+                            <ion-button fill="clear" size="small" slot="end" @click="upsertCartItem(product, getProductQuantityInCart(product.id) + 1)">
+                                <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
+                            </ion-button>
                         </ion-item>
                     </div>
                 </ion-card-content>
@@ -51,32 +55,27 @@
 </template> 
 
 <script setup lang="ts">
-    import { IonHeader, IonToolbar, IonButtons, IonTitle, IonContent, IonButton, IonModal, IonSearchbar, IonChip, IonSegment, IonSegmentButton, IonLabel, IonCard, IonCardHeader, IonCardContent, IonIcon } from '@ionic/vue';
-    import { image } from 'ionicons/icons';
-    import { useTableStore } from '../../stores/tableStore';
+    import { IonHeader, IonToolbar, IonButtons, IonTitle, IonContent, IonButton, IonModal, IonSearchbar, IonChip, IonSegment, IonSegmentButton, IonLabel, IonCard, IonCardHeader, IonCardContent, IonIcon, IonAvatar, IonItem, IonNote } from '@ionic/vue';
+    import { image, addCircleOutline } from 'ionicons/icons';
     import { ref, onMounted, computed } from 'vue';
+    import { useTableStore } from '../../stores/tableStore';
     import { useProductStore } from '../../stores/productStore';
 
     const tableStore = useTableStore();
-    const productStore = useProductStore(); 
+    const productStore = useProductStore();
     const modal = ref();
     const products = computed(() => productStore.products);
 
-    // unique categories from products
-    const categories = computed(() => {
-          return [
-            ...new Map(
-            products.value
-                .filter(product => product.category)
-                .map(product => [product.category.id, product.category])
-            ).values(),
-            ...new Map(
-            products.value
-                .filter(product => product.category)
-                .map(product => [product.category.id, product.category])
-            ).values()
-        ];
+    
+    const props = defineProps({
+        table: {
+            type: Object,
+            required: true
+        }
     });
+
+    tableStore.currentTable = props.table;
+    const currentTable = computed(() => tableStore.currentTable);
 
     const groupedByCategory = computed(() => {
         return products.value.reduce((acc, product) => {
@@ -89,40 +88,89 @@
         }, {});
     });
 
-    const cancel = () => modal.value.$el.dismiss(null, 'cancel');
+    const searchTerm = ref('');
+    const selectedCategory = ref('all');
+    const filteredGroupedByCategory = computed(() => {
+        const term = searchTerm.value.toLowerCase();
+        const selectedCat = selectedCategory.value;
 
-    const confirm = () => {
-        modal.value.$el.dismiss(null, 'confirm');
-    };
+        if (!term && selectedCat === 'all') {
+            return groupedByCategory.value;
+        } else if (term && selectedCat === 'all') {
+            return Object.keys(groupedByCategory.value).reduce((acc, category) => {
+                const filteredProducts = groupedByCategory.value[category].filter((product: any) =>
+                    product.name.toLowerCase().includes(term)
+                );
 
-    const props = defineProps({
-        table: {
-            type: Object,
-            required: true
+                if (filteredProducts.length > 0) {
+                    acc[category] = filteredProducts;
+                }
+
+                return acc;
+            }, {});
+        } else if (!term && selectedCat !== 'all') {
+            return {
+                [selectedCat]: groupedByCategory.value[selectedCat] || []
+            };
+        } else {
+            const filteredProducts = (groupedByCategory.value[selectedCat] || []).filter((product: any) =>
+                product.name.toLowerCase().includes(term)
+            );
+
+            return {
+                [selectedCat]: filteredProducts
+            };
         }
     });
 
-    const isAlertOpen = ref(false);
-    const acceptCloseTable = ref(false);
-
-    const setAlertOpen = (value: boolean) => {
-        isAlertOpen.value = value;
+    const handleSearchProducts = (event: Event) => {
+        const target = event.target as HTMLInputElement;
+        searchTerm.value = target.value;
     };
 
-    const setAcceptCloseTable = (value: boolean) => {
-        acceptCloseTable.value = value;
+    const handleSegmentChange = (event: CustomEvent) => {
+        selectedCategory.value = event.detail.value;
     };
 
-    const setCloseTable = (value: boolean) => {
-        tableStore.closeTable(props.table.id);
+    const getProductQuantityInCart = (productId: number) => {
+        const cartItems = currentTable.value.cart?.carts_items || [];
+        const item = cartItems.find((item: any) => item.product_id === productId);
+        return item ? item.quantity : 0;
     };
+
+    const upsertCartItem = async (product: any, quantity: number) => {
+        try {
+            if (!currentTable.value.cart) {
+                console.error('No cart found for this table');
+                return;
+            }
+
+            const data = await tableStore.upsertCartItem(currentTable.value.cart, product, quantity);
+            // Update the local cart data in the table store
+            console.log('Upserted cart item data:', data);
+            tableStore.currentTable.cart = data;
+
+        } catch (error) {
+            console.error('Error upserting cart item:', error);
+        }
+    };
+
+    // unique categories from products
+    const categories = computed(() => {
+        //use the groupedByCategory to get the unique categories
+        return Object.keys(groupedByCategory.value).map(categoryName => {
+            return {
+                id: categoryName,
+                name: categoryName            
+            };
+        });
+    });
+
+    const cancel = () => modal.value.$el.dismiss(null, 'cancel');
 
     onMounted(async () => {
         try {
             await productStore.fetchProducts();
-            console.log('Products fetched successfully:', products.value);
-            console.log('Unique categories:', categories.value);
-            console.log('Grouped by category:', groupedByCategory.value);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
