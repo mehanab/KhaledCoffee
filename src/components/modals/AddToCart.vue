@@ -38,11 +38,13 @@
 							</ion-avatar>
                             <ion-label>
                                 {{ product.name }}
-                                <p>{{ product.unit_price }} €</p>
+                                <p>{{ parseFloat(product.unit_price).toFixed(2) }} DA</p>
                             </ion-label>
-                            <ion-note slot="end" class="">{{ currentTable.cart?.carts_items?.find((item: any) => item.product_id === product.id)?.quantity || 0 }}</ion-note>
-                            <ion-button fill="clear" size="small" slot="end" @click="upsertCartItem(product, getProductQuantityInCart(product.id) + 1)">
+                            <ion-button v-if="!currentTable.cart?.carts_items?.find((item: any) => item.product_id === product.id)" fill="clear" size="small" slot="end" @click="upsertCartItem(product, getProductQuantityInCart(product.id) + 1)">
                                 <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
+                            </ion-button>
+                            <ion-button v-else fill="clear" slot="end" size="small">
+                                <ion-icon :icon="checkmarkCircle" size="large"></ion-icon>
                             </ion-button>
                         </ion-item>
                     </div>
@@ -56,7 +58,7 @@
 
 <script setup lang="ts">
     import { IonHeader, IonToolbar, IonButtons, IonTitle, IonContent, IonButton, IonModal, IonSearchbar, IonChip, IonSegment, IonSegmentButton, IonLabel, IonCard, IonCardHeader, IonCardContent, IonIcon, IonAvatar, IonItem, IonNote } from '@ionic/vue';
-    import { image, addCircleOutline } from 'ionicons/icons';
+    import { image, addCircleOutline, checkmarkCircle } from 'ionicons/icons';
     import { ref, onMounted, computed } from 'vue';
     import { useTableStore } from '../../stores/tableStore';
     import { useProductStore } from '../../stores/productStore';
