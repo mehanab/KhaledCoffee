@@ -46,13 +46,18 @@
                 </ion-row>
             </ion-grid>
             <ion-list v-if="currentTable.cart?.carts_items && currentTable.cart.carts_items.length > 0">
-                <ion-item v-for="(item, index) in currentTable.cart?.carts_items || []" :key="index">
+                <ion-item v-for="(item, index) in (currentTable.cart?.carts_items || []).sort((a: any, b: any) => a.product_name.localeCompare(b.product_name))" :key="index">
                     <ion-label>
                         <h2>{{ item.product_name }}</h2>
-                        <p>Prix unitaire : {{ parseFloat(item.product_unit_price).toFixed(2) }} DA</p>
-                        <p>Quantité : {{ item.quantity }}</p>
-                        <p>Total : {{ parseFloat(item.total_price).toFixed(2) }} DA</p>
+                        <p>{{ parseFloat(item.product_unit_price).toFixed(2) }} DA</p>
                     </ion-label>
+                    <ion-button fill="clear" size="small" @click="updateCartItemQuantity(item, item.quantity - 1)">
+                        <ion-icon :icon="removeCircleOutline" size="large"></ion-icon>
+                    </ion-button>
+                    <div slot="end">{{ item.quantity }}</div>
+                    <ion-button fill="clear" size="small" slot="end" @click="updateCartItemQuantity(item, item.quantity + 1)">
+                        <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
+                    </ion-button>
                 </ion-item>
             </ion-list>
              <ion-button expand="block" color="medium" type="button" class="ion-margin-top" fill="outline" :disabled="!currentTable.cart" id="open-modal">
@@ -123,8 +128,8 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonPage, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonAlert } from '@ionic/vue';
-import { arrowBackOutline, people, add, create, lockClosed, lockOpen } from 'ionicons/icons';
+import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonPage, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonAlert, IonNote } from '@ionic/vue';
+import { arrowBackOutline, people, add, create, lockClosed, lockOpen, addCircleOutline, removeCircleOutline } from 'ionicons/icons';
 import { getElapsed } from '../../utils/functions';
 import { ref, inject, computed, watch } from 'vue';
 
@@ -266,6 +271,29 @@ watch(() => tableStore.currentTable, (table) => {
     },
     { immediate: true }
 )
+
+
+const updateCartItemQuantity = async (cartItem: any, quantity: number) => {
+    try {
+        if (!currentTable.value.cart) {
+            console.error('No cart found for this table');
+            return;
+        }
+
+        if(quantity <= 0) {
+            console.log('Quantity is zero or negative, removing item from cart');
+            return;
+        }
+
+        const data = await tableStore.updateCartItemQuantity(currentTable.value.cart, cartItem, quantity);
+        // Update the local cart data in the table store
+        console.log('Upserted cart item data:', data);
+        tableStore.currentTable.cart = data;
+
+    } catch (error) {
+        console.error('Error upserting cart item:', error);
+    }
+};
 </script>
 
 <style scoped>

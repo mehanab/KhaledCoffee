@@ -174,7 +174,7 @@ export const useTableStore = defineStore('table', {
             try {
                 const { data, error } = await supabase
                     .from('carts_items')
-                    .upsert({ cart_id: cart.id, product_id: product.id, quantity, product_name: product.name, product_unit_price: product.unit_price, category_name: product.category?.name, total_price: product.unit_price * quantity }, {onConflict: 'product_id'})
+                    .upsert({ cart_id: cart.id, product_id: product.id, quantity: quantity, product_name: product.name, product_unit_price: product.unit_price, category_name: product.category?.name, total_price: product.unit_price * quantity }, {onConflict: 'product_id'})
                     .select('*')
                     .single();
 
@@ -187,6 +187,32 @@ export const useTableStore = defineStore('table', {
                 return cartData;
             } catch (error) {
                 console.error('Error upserting cart item:', error);
+                throw error;
+            }
+        },
+
+        async updateCartItemQuantity(cart: any, cartItem: any, quantity: number) {
+            try {
+                const { data, error } = await supabase
+                    .from('carts_items')
+                    .update({ quantity: quantity, total_price: cartItem.product_unit_price * quantity })
+                        .eq('id', cartItem.id)
+                        .eq('cart_id', cartItem.cart_id)
+                    .select('*');
+
+                    if (error) throw error;
+                    let newTotal;
+                    if(quantity > cartItem.quantity) {
+                        newTotal = (cart.total || 0) + (cartItem.product_unit_price * (quantity - cartItem.quantity));
+                    } else {
+                        newTotal = (cart.total || 0) - (cartItem.product_unit_price * (cartItem.quantity - quantity));
+                    }
+
+                // set total cart price
+                const cartData = await this.upsertCart({ id: cart.id, table_id: this.currentTable.id, total: newTotal });
+                return cartData;
+            } catch (error) {
+                console.error('Error updating cart item quantity:', error);
                 throw error;
             }
         },
