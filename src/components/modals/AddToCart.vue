@@ -13,20 +13,27 @@
             <ion-card color="base">
 				<ion-card-header>
                     <ion-searchbar @ionInput="handleSearchProducts($event)" placeholder="Rechercher" ></ion-searchbar>
-                    <ion-segment scrollable v-model="selectedCategory" @ionChange="handleSegmentChange($event)">
-                         <ion-segment-button value="all">
-                            <ion-label>Toutes</ion-label>
-                        </ion-segment-button>
-                        <ion-segment-button
-                            v-for="category in categories"
-                            :key="category.id"
-                            :value="category.name"
-                        >
-                            <ion-label>{{ category.name }}</ion-label>
-                        </ion-segment-button>
-                    </ion-segment>
                 </ion-card-header>
-
+                <swiper
+                    :slides-per-view="2.5"
+                    :space-between="8"
+                    :pagination="{
+                        el: '.custom-pagination',
+                        clickable: true
+                        }"
+                    :modules="[Pagination]">
+                    <swiper-slide value="all">
+                        <ion-chip value="all" @click="selectedCategory = 'all'">
+                            <ion-label>Toutes</ion-label>
+                        </ion-chip>
+                    </swiper-slide>
+                    <swiper-slide v-for="category in categories" :key="category.id":value="category.name">
+                        <ion-chip :value="category.name" @click="selectedCategory = category.name">
+                            <ion-label>{{ category.name }}</ion-label>
+                        </ion-chip>
+                    </swiper-slide>
+                </swiper>
+                <div class="custom-pagination ion-display-flex ion-justify-content-center ion-margin-top"></div>
                 <ion-list class="ion-no-padding">
                     <ion-item-group v-for="(products, category) in filteredGroupedByCategory" :key="category">
                         <ion-item-divider>
@@ -55,11 +62,19 @@
 </template> 
 
 <script setup lang="ts">
-    import { IonHeader, IonToolbar, IonButtons, IonTitle, IonContent, IonButton, IonModal, IonSearchbar, IonChip, IonSegment, IonSegmentButton, IonLabel, IonCard, IonCardHeader, IonCardContent, IonIcon, IonAvatar, IonItem, IonList, IonItemGroup, IonItemDivider } from '@ionic/vue';
-    import { image, addCircleOutline, checkmarkCircle } from 'ionicons/icons';
+    import { IonHeader, IonToolbar, IonButtons, IonTitle, IonContent, IonButton, IonModal, IonSearchbar, IonChip, IonLabel, IonCard, IonCardHeader, IonIcon, IonAvatar, IonItem, IonList, IonItemGroup, IonItemDivider } from '@ionic/vue';
+    import { image, addCircleOutline } from 'ionicons/icons';
     import { ref, onMounted, computed } from 'vue';
     import { useTableStore } from '../../stores/tableStore';
     import { useProductStore } from '../../stores/productStore';
+    import { Swiper, SwiperSlide } from 'swiper/vue';
+    import { Pagination } from 'swiper/modules'
+    
+    // Import Swiper styles
+    import 'swiper/css';
+    //import 'swiper/css/navigation';
+    import 'swiper/css/pagination';
+    //import 'swiper/css/bundle';
 
     const tableStore = useTableStore();
     const productStore = useProductStore();
@@ -128,10 +143,6 @@
         searchTerm.value = target.value;
     };
 
-    const handleSegmentChange = (event: CustomEvent) => {
-        selectedCategory.value = event.detail.value;
-    };
-
     const getProductQuantityInCart = (productId: number) => {
         const cartItems = currentTable.value.cart?.carts_items || [];
         const item = cartItems.find((item: any) => item.product_id === productId);
@@ -178,6 +189,19 @@
 </script>
 
 <style scoped>
+
+    :deep(.swiper-slide) {
+        width: auto !important;
+    }
+
+    :deep(.swiper-pagination-bullet) {
+        background: var(--ion-color-medium);
+    }
+
+    :deep(.swiper-pagination-bullet-active) {
+        background: var(--ion-color-medium);
+    }
+
     .products {
 
 	.product {
