@@ -10,7 +10,7 @@
         </ion-header>
 
         <ion-content :fullscreen="true">
-            <ion-card color="base" :bordered="false">
+            <ion-card color="base">
 				<ion-card-header>
                     <ion-searchbar @ionInput="handleSearchProducts($event)" placeholder="Rechercher" ></ion-searchbar>
                     <ion-segment scrollable v-model="selectedCategory" @ionChange="handleSegmentChange($event)">
@@ -27,15 +27,16 @@
                     </ion-segment>
                 </ion-card-header>
 
-                <ion-card-content class="products">
-                    <div v-for="(products, category) in filteredGroupedByCategory" :key="category" color="primary" outline>
-                        <ion-label>{{ category }}</ion-label>
-
-                        <ion-item v-for="product in products" :key="product.id" :button="true" class="ion-display-flex product opened ion-marging" lines="none">
-							<ion-avatar slot="start">
-								<img v-if="product.image_path" :src="product.image_path" />
+                <ion-list class="ion-no-padding">
+                    <ion-item-group v-for="(products, category) in filteredGroupedByCategory" :key="category">
+                        <ion-item-divider>
+                            <ion-label> {{ category }}</ion-label>
+                        </ion-item-divider>
+                        <ion-item v-for="(product, index) in products" :key="product.id" :lines="index === products.length - 1 ? 'none' : 'full'">
+                            <ion-avatar slot="start">
+                                <img v-if="product.image_path" :src="product.image_path" />
                                 <ion-icon v-else :icon="image" size="large"></ion-icon>
-							</ion-avatar>
+                            </ion-avatar>
                             <ion-label>
                                 {{ product.name }}
                                 <p>{{ parseFloat(product.unit_price).toFixed(2) }} DA</p>
@@ -43,12 +44,9 @@
                             <ion-button v-if="!currentTable.cart?.carts_items?.find((item: any) => item.product_id === product.id)" fill="clear" size="small" slot="end" @click="upsertCartItem(product, getProductQuantityInCart(product.id) + 1)">
                                 <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
                             </ion-button>
-                            <ion-button v-else fill="clear" slot="end" size="small">
-                                <ion-icon :icon="checkmarkCircle" size="large"></ion-icon>
-                            </ion-button>
                         </ion-item>
-                    </div>
-                </ion-card-content>
+                    </ion-item-group>  
+                </ion-list>
             </ion-card>
         </ion-content>
 
@@ -57,7 +55,7 @@
 </template> 
 
 <script setup lang="ts">
-    import { IonHeader, IonToolbar, IonButtons, IonTitle, IonContent, IonButton, IonModal, IonSearchbar, IonChip, IonSegment, IonSegmentButton, IonLabel, IonCard, IonCardHeader, IonCardContent, IonIcon, IonAvatar, IonItem, IonNote } from '@ionic/vue';
+    import { IonHeader, IonToolbar, IonButtons, IonTitle, IonContent, IonButton, IonModal, IonSearchbar, IonChip, IonSegment, IonSegmentButton, IonLabel, IonCard, IonCardHeader, IonCardContent, IonIcon, IonAvatar, IonItem, IonList, IonItemGroup, IonItemDivider } from '@ionic/vue';
     import { image, addCircleOutline, checkmarkCircle } from 'ionicons/icons';
     import { ref, onMounted, computed } from 'vue';
     import { useTableStore } from '../../stores/tableStore';

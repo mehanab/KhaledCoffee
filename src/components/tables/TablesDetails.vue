@@ -46,12 +46,16 @@
                 </ion-row>
             </ion-grid>
             <ion-list v-if="currentTable.cart?.carts_items && currentTable.cart.carts_items.length > 0">
-                <ion-item v-for="(item, index) in (currentTable.cart?.carts_items || []).sort((a: any, b: any) => a.product_name.localeCompare(b.product_name))" :key="index">
+                <ion-item v-for="(item, index) in (currentTable.cart?.carts_items || []).sort((a: any, b: any) => a.product_name.localeCompare(b.product_name))" :key="index" :lines="index === (currentTable.cart?.carts_items || []).length - 1 ? 'none' : 'full'">
+                     <ion-avatar slot="start">
+                        <img v-if="item.product_image_path" :src="item.product_image_path" />
+                        <ion-icon v-else :icon="image" size="large"></ion-icon>
+                    </ion-avatar>
                     <ion-label>
                         <h2>{{ item.product_name }}</h2>
                         <p>{{ parseFloat(item.product_unit_price).toFixed(2) }} DA</p>
                     </ion-label>
-                    <ion-button fill="clear" size="small" @click="updateCartItemQuantity(item, item.quantity - 1)">
+                    <ion-button fill="clear" size="small" @click="updateCartItemQuantity(item, item.quantity - 1)" color="medium">
                         <ion-icon :icon="removeCircleOutline" size="large"></ion-icon>
                     </ion-button>
                     <div slot="end">{{ item.quantity }}</div>
@@ -69,21 +73,21 @@
 
     <ion-footer class="ion-display-flex ion-justify-content-center ion-padding">
         <!-- if table is opened show close button else show open button -->
-        <ion-button v-if="currentTable.cart" color="medium" fill="outline" size="large" expand="block" class="ion-flex-grow-1" @click="setOpen(true)">
+        <ion-button v-if="currentTable.cart" color="light" fill="solid" size="large" expand="block" class="ion-flex-grow-1" @click="setOpen(true)">
             <ion-icon :icon="create" slot="start"></ion-icon>
            <ion-text>modifier</ion-text>
        </ion-button>
-       <ion-button v-if="currentTable.cart" color="danger" fill="outline" :strong="true" size="large" expand="block" @click="setAcceptCloseTable(true)">
-            <ion-icon :icon="lockClosed" slot="start"></ion-icon>
-            <ion-text>Fermer la table</ion-text>
+       <ion-button v-if="currentTable.cart" fill="solid" size="large" expand="block" @click="setAcceptCloseTable(true)" class="detail-table-close-btn">
+            <ion-icon :icon="lockClosed" slot="start" color="danger"></ion-icon>
+            <ion-text color="danger">Fermer la table</ion-text>
         </ion-button>
-         <ion-button v-if="!currentTable.cart" expand="block" color="medium" fill="outline"  size="large" @click="setCurrentTableStatus('unavailable')" :disabled="disableBtns">
+         <ion-button v-if="!currentTable.cart" expand="block" color="light" fill="solid"  size="large" @click="setCurrentTableStatus('unavailable')" :disabled="disableBtns">
             <ion-icon :icon="lockOpen" slot="start"></ion-icon>
             <ion-text>Désactiver</ion-text>
         </ion-button>
-         <ion-button v-if="!currentTable.cart" expand="block" color="success" fill="outline" class="ion-flex-grow-1" size="large" @click="setOpen(true)" :disabled="disableBtns">
-            <ion-icon :icon="lockOpen" slot="start"></ion-icon>
-            <ion-text>Ouvrir la table</ion-text>
+         <ion-button v-if="!currentTable.cart" expand="block" fill="solid" class="ion-flex-grow-1 detail-table-open-btn" size="large" @click="setOpen(true)" :disabled="disableBtns">
+            <ion-icon :icon="lockOpen" slot="start" color="success"></ion-icon>
+            <ion-text color="success">Ouvrir la table</ion-text>
         </ion-button>
 
          <ion-modal ref="modal" :is-open="isOpen" @did-dismiss="setOpen(false)">
@@ -128,8 +132,8 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonPage, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonAlert, IonNote } from '@ionic/vue';
-import { arrowBackOutline, people, add, create, lockClosed, lockOpen, addCircleOutline, removeCircleOutline } from 'ionicons/icons';
+import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonAlert, IonAvatar } from '@ionic/vue';
+import { arrowBackOutline, people, add, create, lockClosed, lockOpen, addCircleOutline, removeCircleOutline, image } from 'ionicons/icons';
 import { getElapsed } from '../../utils/functions';
 import { ref, inject, computed, watch } from 'vue';
 
@@ -304,5 +308,17 @@ const updateCartItemQuantity = async (cartItem: any, quantity: number) => {
 
 .row {
     padding: 1em 0;
+}
+
+ion-button {
+    &.detail-table-close-btn {
+        --background: #462d2d;
+        --opacity: 0.5;
+    }
+
+    &.detail-table-open-btn {
+        --background: #2c412d;
+        --opacity: 0.5;
+    }
 }
 </style>
