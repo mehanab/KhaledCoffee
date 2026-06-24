@@ -1,5 +1,5 @@
 <template>
-    <ion-modal ref="modal" trigger="open-modal">
+    <ion-modal ref="modal" trigger="open-modal" show-backdrop="true" css-class="add-to-cart-modal">
         <ion-header>
             <ion-toolbar>
                 <ion-buttons slot="start">
@@ -202,7 +202,10 @@
         background: var(--ion-color-medium);
     }
 
-    .products {
+    .add-to-cart-modal {
+        --width: 100%;
+        --height: 100%;
+    }
 
 	.product {
 		margin: 0.5em 0;
@@ -234,6 +237,6 @@
 			--border-color: var(--ion-color-danger);
 		} */
 	}
-}
+
 
 </style>
