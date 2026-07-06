@@ -1,5 +1,5 @@
 function getElapsed(createdAt: string | Date, currentTime: Date = new Date()): string {
-    const diffMs = currentTime.getTime() - new Date(createdAt).getTime();
+    const diffMs = Math.max(0, currentTime.getTime() - new Date(createdAt).getTime());
 
     const minutes = Math.floor(diffMs / 60000);
     const seconds = Math.floor((diffMs % 60000) / 1000);
