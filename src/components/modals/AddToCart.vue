@@ -31,7 +31,7 @@
                         <ion-item-divider>
                             <ion-label> {{ category }}</ion-label>
                         </ion-item-divider>
-                        <ion-item v-for="(product, index) in products" :key="product.id" :lines="index === products.length - 1 ? 'none' : 'full'">
+                        <ion-item v-for="(product, index) in products" :key="product.id" :lines="index === products.length - 1 ? 'none' : 'default'">
                             <ion-avatar slot="start">
                                 <img v-if="product.image_path" :src="product.image_path" />
                                 <ion-icon v-else :icon="image" size="large"></ion-icon>
@@ -59,14 +59,6 @@
     import { ref, onMounted, computed } from 'vue';
     import { useTableStore } from '../../stores/tableStore';
     import { useProductStore } from '../../stores/productStore';
-    import { Swiper, SwiperSlide } from 'swiper/vue';
-    import { Pagination } from 'swiper/modules'
-    
-    // Import Swiper styles
-    import 'swiper/css';
-    //import 'swiper/css/navigation';
-    import 'swiper/css/pagination';
-    //import 'swiper/css/bundle';
 
     const tableStore = useTableStore();
     const productStore = useProductStore();
