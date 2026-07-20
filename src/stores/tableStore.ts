@@ -30,7 +30,7 @@ export const useTableStore = defineStore('table', {
             try {
                 const { data, error } = await supabase
                     .from('tables')
-                    .select(`*, carts (*, carts_items (*))`)
+                    .select(`*, carts (*, carts_items (*, product:products (*)))`)
                     .limit(1, { referencedTable: 'carts' });
 
                 if (error) throw error;
@@ -51,7 +51,7 @@ export const useTableStore = defineStore('table', {
             try {
                 const { data, error } = await supabase
                     .from('tables')
-                    .select(`*, carts (*, cart_items (*))`)
+                    .select(`*, carts (*, cart_items (*, product:products (*)))`)
                     .eq('id', tableId)
                     .single();
 
@@ -155,7 +155,7 @@ export const useTableStore = defineStore('table', {
                 const { data, error } = await supabase
                     .from('carts')
                     .upsert({ id: cart.id, table_id: cart.table_id, total: cart.total, guests: cart.guest_count, libelle: cart.libelle, user_id: cart.user_id }, { onConflict: 'id' })
-                    .select('*, carts_items (*)')
+                    .select('*, carts_items (*, product:products (*))')
                     .single();
 
                 if (error) throw error;
@@ -174,7 +174,7 @@ export const useTableStore = defineStore('table', {
             try {
                 const { data, error } = await supabase
                     .from('carts_items')
-                    .upsert({ cart_id: cart.id, product_id: product.id, quantity: quantity, product_name: product.name, product_unit_price: product.unit_price, category_name: product.category?.name, total_price: product.unit_price * quantity }, {onConflict: 'product_id'})
+                    .upsert({ cart_id: cart.id, product_id: product.id, quantity: quantity, product_name: product.name, product_unit_price: product.unit_price, category_name: product.category?.name, total_price: product.unit_price * quantity }, {onConflict: 'id, cart_id, product_id'})
                     .select('*')
                     .single();
 
@@ -198,7 +198,7 @@ export const useTableStore = defineStore('table', {
                     .update({ quantity: quantity, total_price: cartItem.product_unit_price * quantity })
                         .eq('id', cartItem.id)
                         .eq('cart_id', cartItem.cart_id)
-                    .select('*');
+                    .select('*, product:products (*)');
 
                     if (error) throw error;
                     let newTotal;
@@ -216,5 +216,28 @@ export const useTableStore = defineStore('table', {
                 throw error;
             }
         },
+
+        async removeCartItem(cartId: number, cartItemId: number) {
+            try {
+                const { data, error } = await supabase
+                    .from('carts_items')
+                    .delete()
+                    .eq('id', cartItemId)
+                    .eq('cart_id', cartId)
+                    .select('*')
+                    .single();
+
+                if (error) throw error;
+
+                const newTotal = (this.currentTable.cart.total || 0) - (data.product_unit_price * data.quantity);
+
+                // set total cart price
+                const cartData = await this.upsertCart({ id: cartId, table_id: this.currentTable.id, total: newTotal });
+                return cartData;
+            } catch (error) {
+                console.error('Error removing cart item:', error);
+                throw error;
+            }
+        }
     }
 });

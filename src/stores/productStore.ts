@@ -85,7 +85,7 @@ export const useProductStore = defineStore('product', {
             }
         },
 
-        async updateProduct(productId: number, updates: { name?: string, description?: string, price?: number, category_id?: number, image_path?: string }) {
+        async updateProduct(productId: number, updates: { name?: string, description?: string, price?: number, category_id?: number, image_path?: string, stock?: number}) {
             try {
                 const { data, error } = await supabase
                     .from('products')
@@ -122,5 +122,31 @@ export const useProductStore = defineStore('product', {
                 throw error;
             }
         },
+
+        async updateProductStock(productId: number, stockIncrement: number) {
+            try {
+                //if empty this.products, fetch products first
+                if (this.products.length === 0) {
+                    await this.fetchProducts();
+                }
+                let product = this.products.find(p => p.id === productId);
+                if (!product) {
+                    throw new Error(`Product with ID ${productId} not found`);
+                }
+                let value = (product.stock || 0) + (-stockIncrement);
+                if(value < 0) {
+                    value = 0;
+                } 
+                const data = await this.updateProduct(productId, {
+                    stock: value
+                });
+
+                console.log('Updated product data:', data);
+                return data;
+            } catch (error) {
+                console.error('Error updating product stock:', error);
+                throw error;
+            }
+        }
     }
 })

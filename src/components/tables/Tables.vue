@@ -27,9 +27,9 @@
 
 					<ion-nav-link v-if="openedTables.length" v-for="table in openedTables" :key="table.id" router-direction="forward" :component="tablesDetails" :component-props="{ table: table }">
 						<ion-item :button="true" class="ion-display-flex table opened" lines="none">
-							<ion-avatar slot="start">
+							<ion-thumbnail  slot="start">
 								<img src="/table.svg"/>
-							</ion-avatar>
+							</ion-thumbnail>
 							<ion-label color="primary" class="ion-text-start ion-display-flex table-label">
 								<h2 class="table-number ion-align-self-center">{{ table.number }}</h2>
 								<ion-text v-if="table.cart" color="medium" class="table-text">
@@ -58,9 +58,9 @@
 					</div>
 					<ion-nav-link v-if="closedTables.length" v-for="table in closedTables" :key="table.id" router-direction="forward" :component="tablesDetails" :component-props="{ table: table }">
 							<ion-item :button="true" class="ion-display-flex table closed" lines="none">
-								<ion-avatar slot="start">
+								<ion-thumbnail slot="start">
 									<img src="/table.svg" />
-								</ion-avatar>
+								</ion-thumbnail>
 								<ion-label color="primary" class="ion-text-start ion-display-flex table-label">
 									<h2 class="table-number ion-align-self-center">{{ table.number }}</h2>
 									<ion-text color="medium" class="table-text">
@@ -87,9 +87,9 @@
 					</div>
 					<ion-item-sliding v-if="unavailableTables.length" v-for="table in unavailableTables" :key="table.id" class="table">
 						<ion-item :button="true" :disabled="table.status === 'unavailable'" class="ion-display-flex unavailable" lines="none">
-							<ion-avatar slot="start">
+							<ion-thumbnail slot="start">
 								<img src="/table.svg" />
-							</ion-avatar>
+							</ion-thumbnail>
 							<ion-label color="primary" class="ion-text-start ion-display-flex table-label">
 								<h2 class="table-number ion-align-self-center">{{ table.number }}</h2>
 								<ion-text color="medium" class="table-text">
@@ -162,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, IonIcon, IonNavLink, IonButtons, IonLabel, IonFab, IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonAvatar, IonText, onIonViewWillEnter, IonModal, IonInput, IonSelect, IonSelectOption, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/vue';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, IonIcon, IonNavLink, IonButtons, IonLabel, IonFab, IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonThumbnail, IonText, IonModal, IonInput, IonSelect, IonSelectOption, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/vue';
 import { add, peopleOutline, timeOutline, checkmarkOutline, flash } from 'ionicons/icons';
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, ref, markRaw, computed, onUnmounted } from 'vue';
@@ -276,6 +276,12 @@ onUnmounted(() => {
   transform: translateY(-50%);
 }
 **/
+
+ion-thumbnail {
+	--size: 3em;
+	margin: 0 1em 0 0;
+}
+
 #container strong {
   font-size: 20px;
   line-height: 26px;

@@ -38,9 +38,9 @@
                             </ion-avatar>
                             <ion-label>
                                 {{ product.name }}
-                                <p>{{ parseFloat(product.unit_price).toFixed(2) }} DA</p>
+                                <p>{{ parseFloat(product.unit_price).toFixed(2) }} DA - Qté restante: {{ product.stock }}</p>
                             </ion-label>
-                            <ion-button v-if="!currentTable.cart?.carts_items?.find((item: any) => item.product_id === product.id)" fill="clear" size="small" slot="end" @click="upsertCartItem(product, getProductQuantityInCart(product.id) + 1)">
+                            <ion-button v-if="!currentTable.cart?.carts_items?.find((item: any) => item.product_id === product.id)" fill="clear" size="small" slot="end" @click="upsertCartItem(product, getProductQuantityInCart(product.id) + 1)" :disabled="product.stock <= 0 || addingProduct === product.id">
                                 <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
                             </ion-button>
                         </ion-item>
@@ -133,13 +133,25 @@
         return item ? item.quantity : 0;
     };
 
+    const addingProduct = ref<number | null>(null);
     const upsertCartItem = async (product: any, quantity: number) => {
         try {
+            addingProduct.value = product.id;
             if (!currentTable.value.cart) {
                 console.error('No cart found for this table');
+                addingProduct.value = null;
                 return;
             }
 
+            const quantityDiff = quantity - getProductQuantityInCart(product.id);
+            if (quantityDiff > product.stock) {
+                console.error('Quantity exceeds stock');
+                return;
+            }
+
+            // Update the product stock_sold in the products table
+            const dataProduct = await productStore.updateProductStock(product.id, quantityDiff);
+            // Update the cart item in the cart_items table
             const data = await tableStore.upsertCartItem(currentTable.value.cart, product, quantity);
             // Update the local cart data in the table store
             console.log('Upserted cart item data:', data);
@@ -147,6 +159,8 @@
 
         } catch (error) {
             console.error('Error upserting cart item:', error);
+        } finally {
+            addingProduct.value = null;
         }
     };
 

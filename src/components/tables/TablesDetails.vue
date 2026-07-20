@@ -54,12 +54,13 @@
                     <ion-label>
                         <h2>{{ item.product_name }}</h2>
                         <p>{{ parseFloat(item.product_unit_price).toFixed(2) }} DA</p>
+                        <ion-note color="medium">Qté restante: {{ item.product.stock}}</ion-note>
                     </ion-label>
-                    <ion-button fill="clear" size="small" @click="updateCartItemQuantity(item, item.quantity - 1)" color="medium">
+                    <ion-button fill="clear" size="small" @click="updateCartItemQuantity(item, item.quantity - 1)" color="medium" :disabled="updatingQuantity === item.id">
                         <ion-icon :icon="removeCircleOutline" size="large"></ion-icon>
                     </ion-button>
                     <div slot="end">{{ item.quantity }}</div>
-                    <ion-button fill="clear" size="small" slot="end" @click="updateCartItemQuantity(item, item.quantity + 1)">
+                    <ion-button fill="clear" size="small" slot="end" @click="updateCartItemQuantity(item, item.quantity + 1)" :disabled="item.product.stock <= 0 || updatingQuantity === item.id">
                         <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
                     </ion-button>
                 </ion-item>
@@ -128,21 +129,32 @@
             @didDismiss="setAcceptCloseTable(false)"
             >
         </ion-alert>
+
+        <ion-alert :is-open="acceptRemoveCartItem"
+            header="Confirmation"
+            sub-header="Voulez-vous vraiment supprimer cet article du panier ?"
+            message="Cette action est irréversible."
+            :buttons="acceptRemoveCartItemButtons"
+            @didDismiss="setAcceptRemoveCartItem(false)"
+            >
+        </ion-alert>
     </ion-footer>
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonAlert, IonAvatar } from '@ionic/vue';
+import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonAlert, IonAvatar, IonNote } from '@ionic/vue';
 import { arrowBackOutline, people, add, create, lockClosed, lockOpen, addCircleOutline, removeCircleOutline, image } from 'ionicons/icons';
 import { getElapsed } from '../../utils/functions';
 import { ref, inject, computed, watch } from 'vue';
 
 import { useTableStore } from '../../stores/tableStore';
 import { useOrderStore } from '../../stores/orderStore';
+import { useProductStore } from '../../stores/productStore';
 import AddToCart from '../modals/AddToCart.vue';
 
 const tableStore = useTableStore();
 const orderStore = useOrderStore();
+const productStore = useProductStore();
 
 const props = defineProps({
     table: {
@@ -219,6 +231,39 @@ const acceptCloseTableButtons = [
     }
 ];
 
+const cartItemToRemove = ref<any>(null);
+const acceptRemoveCartItem = ref(false);
+const setAcceptRemoveCartItem = (open: boolean) => (acceptRemoveCartItem.value = open);
+const acceptRemoveCartItemButtons = [
+    {
+        text: 'Confirmer',
+        handler: async () => {
+            if (currentTable.value.cart && currentTable.value.cart.id && cartItemToRemove.value && cartItemToRemove.value != null) {
+                try {
+                    console.log('Removing cart item:', cartItemToRemove.value);
+                    tableStore.currentTable.cart = await tableStore.removeCartItem(currentTable.value.cart.id, cartItemToRemove.value.id);
+
+                    // Update the product stock_sold in the products table
+                    await productStore.updateProductStock(cartItemToRemove.value.product_id, -cartItemToRemove.value.quantity);
+                    cartItemToRemove.value = null;
+
+                } catch (error) {
+                    console.error('Error removing cart item:', error);
+                    setAlertOpen(true);
+                }
+            }
+            setAcceptRemoveCartItem(false);
+        }
+    },
+    {
+        text: 'Annuler',
+        role: 'cancel',
+        handler: () => {            
+            setAcceptRemoveCartItem(false);
+        }
+    }
+];
+
 const cartLibelle = ref('')
 const cartPeople = ref(0)
 
@@ -276,7 +321,7 @@ watch(() => tableStore.currentTable, (table) => {
     { immediate: true }
 )
 
-
+const updatingQuantity = ref<number | null>(null);
 const updateCartItemQuantity = async (cartItem: any, quantity: number) => {
     try {
         if (!currentTable.value.cart) {
@@ -285,17 +330,31 @@ const updateCartItemQuantity = async (cartItem: any, quantity: number) => {
         }
 
         if(quantity <= 0) {
-            console.log('Quantity is zero or negative, removing item from cart');
+            cartItemToRemove.value = cartItem;
+            setAcceptRemoveCartItem(true);
+            console.log('Quantity is zero or negative');
             return;
         }
 
+        const quantiityDiff = quantity - cartItem.quantity;
+        if(quantiityDiff > cartItem.product.stock) {
+            console.log('Quantity exceeds stock', quantiityDiff, '>', cartItem.product.stock);
+            return;
+        }
+
+        // Update the product stock_sold in the products table
+        updatingQuantity.value = cartItem.id;
+        const dataProduct = await productStore.updateProductStock(cartItem.product_id, quantiityDiff);
+
+        // Update the cart item quantity in the cart_items table
         const data = await tableStore.updateCartItemQuantity(currentTable.value.cart, cartItem, quantity);
         // Update the local cart data in the table store
-        console.log('Upserted cart item data:', data);
         tableStore.currentTable.cart = data;
 
     } catch (error) {
         console.error('Error upserting cart item:', error);
+    } finally {
+        updatingQuantity.value = null;
     }
 };
 </script>
