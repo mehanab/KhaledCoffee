@@ -34,12 +34,12 @@ export const useOrderStore = defineStore('order', {
                 user_id: cart.user_id ?? authStore.user?.id ?? null
             };
             const orderItems = cart.carts_items.map((item: any) => ({
-                product_name: item.name,
+                product_name: item.product_name,
                 category_name: item.category_name,
-                product_unit_price: item.price,
-                total_price: item.price * item.quantity,
+                product_unit_price: item.product_unit_price,
+                total_price: item.total_price,
                 quantity: item.quantity,
-                product_image_path: item.image_path
+                product_image_path: item.product_image_path
             }));
 
             try {
