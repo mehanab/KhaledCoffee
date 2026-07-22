@@ -78,11 +78,11 @@
             <ion-icon :icon="create" slot="start"></ion-icon>
            <ion-text>modifier</ion-text>
        </ion-button>
-       <ion-button v-if="currentTable.cart" fill="solid" size="large" expand="block" @click="setAcceptCloseTable(true)" class="detail-table-close-btn">
+       <ion-button v-if="currentTable.cart" fill="solid" size="large" expand="block" @click="setAcceptCloseTable(true)" class="detail-table-close-btn ion-flex-grow-1">
             <ion-icon :icon="lockClosed" slot="start" color="danger"></ion-icon>
             <ion-text color="danger">Fermer la table</ion-text>
         </ion-button>
-         <ion-button v-if="!currentTable.cart" expand="block" color="light" fill="solid"  size="large" @click="setCurrentTableStatus('unavailable')" :disabled="disableBtns">
+         <ion-button v-if="!currentTable.cart" expand="block" color="light" fill="solid"  size="large" @click="setCurrentTableStatus('unavailable')" :disabled="disableBtns" class="ion-flex-grow-1">
             <ion-icon :icon="lockOpen" slot="start"></ion-icon>
             <ion-text>Désactiver</ion-text>
         </ion-button>
