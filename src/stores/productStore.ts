@@ -67,7 +67,7 @@ export const useProductStore = defineStore('product', {
             }
         },
 
-        async createProduct(product: { name: string, description: string, price: number, category_id: number, image_path?: string }) {
+        async createProduct(product: { name: string, unit_price: number, category_id: number, image_path?: string, stock?: number }) {
             try {
                 const { data, error } = await supabase
                     .from('products')
@@ -85,7 +85,7 @@ export const useProductStore = defineStore('product', {
             }
         },
 
-        async updateProduct(productId: number, updates: { name?: string, description?: string, price?: number, category_id?: number, image_path?: string, stock?: number}) {
+        async updateProduct(productId: number, updates: { name?: string, unit_price?: number, category_id?: number, image_path?: string, stock?: number}) {
             try {
                 const { data, error } = await supabase
                     .from('products')
