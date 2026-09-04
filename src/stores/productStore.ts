@@ -29,7 +29,7 @@ export const useProductStore = defineStore('product', {
 
                 if (error) throw error;
 
-                this.products = data;
+                return data;
             } catch (error) {
                 console.error('Error fetching products by category:', error);
             }

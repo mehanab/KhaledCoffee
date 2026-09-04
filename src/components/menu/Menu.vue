@@ -35,8 +35,11 @@
                                         </ion-button> -->
                                     </ion-item>
                                     <ion-item-options side="end">
-                                        <ion-item-option color="primary" @click="setOpen('product', true); closeSliding($event); isValidName = true; productId = product.id; productName = product.name; productPriceUnit = product.unit_price; productStock = product.stock; productCategorie = product.category_id;">
+                                        <ion-item-option color="primary" @click="setOpen('product', true); closeSliding($event); isValidName = true; productId = product.id; productName = product.name; productPriceUnit = product.unit_price; productStock = product.stock; productCategorie = product.category_id;titreModalProduit = 'Modifier le produit';">
                                             <ion-icon slot="icon-only" :icon="create" size="large"></ion-icon>
+                                        </ion-item-option>
+                                        <ion-item-option color="danger" @click="setAcceptRemoveProduct(true, 'product', product.id); closeSliding($event);">
+                                            <ion-icon slot="icon-only" :icon="trash" size="large"></ion-icon>
                                         </ion-item-option>
                                     </ion-item-options>
                                 </ion-item-sliding>
@@ -53,8 +56,11 @@
                                     </ion-label>
                                 </ion-item>
                                 <ion-item-options side="end">
-                                    <ion-item-option color="primary" @click="setOpen('category', true); closeSliding($event); isValidName = true; categoryId = category.id; categoryName = category.name;">
+                                    <ion-item-option color="primary" @click="setOpen('category', true); closeSliding($event); isValidName = true; categoryId = category.id; categoryName = category.name; titreModalCategorie = 'Modifier la catégorie';">
                                         <ion-icon slot="icon-only" :icon="create" size="large"></ion-icon>
+                                    </ion-item-option>
+                                    <ion-item-option color="danger" @click="setAcceptRemoveProduct(true, 'category', category.id); closeSliding($event);">
+                                        <ion-icon slot="icon-only" :icon="trash" size="large"></ion-icon>
                                     </ion-item-option>
                                 </ion-item-options>
                             </ion-item-sliding>
@@ -77,7 +83,7 @@
         <ion-modal ref="table-modal" :is-open="isModalProductOpen" @did-dismiss="setOpen('product',false)">
             <ion-content class="ion-padding">
                 <ion-toolbar>
-                    <ion-title>Nouveau produit</ion-title>
+                    <ion-title>{{ titreModalProduit ??'Nouveau produit' }}</ion-title>
                     <ion-buttons slot="end">
                         <ion-button @click="setOpen('product',false)">Fermer</ion-button>
                     </ion-buttons>
@@ -167,7 +173,7 @@
         <ion-modal ref="table-modal" :is-open="isModalCategoryOpen" @did-dismiss="setOpen('category',false)">
             <ion-content class="ion-padding">
                 <ion-toolbar>
-                    <ion-title>Nouvelle catégorie</ion-title>
+                    <ion-title>{{ titreModalCategorie ?? 'Nouvelle catégorie' }}</ion-title>
                     <ion-buttons slot="end">
                         <ion-button @click="setOpen('category',false)">Fermer</ion-button>
                     </ion-buttons>
@@ -205,16 +211,35 @@
                 </ion-button>
             </ion-content>
         </ion-modal>
+        <ion-alert  :is-open="acceptRemoveProduct"
+            header="Confirmation"
+            sub-header="Voulez-vous vraiment supprimer cet élément ?"
+            message="Cette action est irréversible."
+            :buttons="acceptRemoveProductButtons"
+            @didDismiss="setAcceptRemoveProduct(false)"
+            >
+        </ion-alert>
+        <ion-alert  :is-open="isInAnyCartAlert"
+            header="Action impossible"
+            :sub-header="toRemove.type === 'product' ? 'Ce Produit est présent dans un ou plusieurs tables ouvertes.' : 'Cette catégorie contient un ou plusieurs produits.'"
+            :message="toRemove.type === 'product' ? 'Il ne peut pas être supprimé tant qu\'il est en cours de vente.' : 'Vous devez d\'abord supprimer tous les produits de cette catégorie.'"
+            :buttons="[{ text: 'OK', role: 'cancel' }]"
+            @didDismiss="setIsInAnyCartAlert(false)"
+            >
+        </ion-alert>
 </template>
 
 <script setup lang="ts">
     import Toolbar from '../Toolbar.vue';
-    import { IonHeader, IonContent, IonLabel, IonCard, IonIcon, IonAvatar, IonItem, IonList, IonItemGroup, IonItemDivider, IonSegment, IonSegmentButton, IonFooter, IonToolbar, IonTitle, IonSegmentView, IonSegmentContent, IonButtons, IonButton, IonText, IonModal, IonInput, IonSelect, IonSelectOption, IonItemOptions, IonItemOption, IonItemSliding } from '@ionic/vue';
-    import { image, add, checkmarkOutline, create } from 'ionicons/icons';
+    import { IonHeader, IonContent, IonLabel, IonCard, IonIcon, IonAvatar, IonItem, IonList, IonItemGroup, IonItemDivider, IonSegment, IonSegmentButton, IonFooter, IonToolbar, IonTitle, IonSegmentView, IonSegmentContent, IonButtons, IonButton, IonText, IonModal, IonInput, IonSelect, IonSelectOption, IonItemOptions, IonItemOption, IonItemSliding, IonAlert } from '@ionic/vue';
+    import { image, add, checkmarkOutline, create, trash } from 'ionicons/icons';
     import { ref, onMounted, computed } from 'vue';
     import { useProductStore } from '../../stores/productStore';
     import { useCategoryStore } from '../../stores/categoryStore';
+    import { useTableStore } from '../../stores/tableStore';
     const productStore = useProductStore();
+    const tableStore = useTableStore();
+
     const products = computed(() => productStore.products);
     const categoryStore = useCategoryStore();
     const allCategories = computed(function() {
@@ -231,6 +256,8 @@
     const categoryName = ref('');
 
     const productId = ref(null);
+    const titreModalProduit = ref('Nouveau produit');
+    const titreModalCategorie = ref('Nouvelle catégorie');
     const productName = ref('');
     const productPriceUnit = ref(0);
     const productStock = ref(0);
@@ -251,6 +278,24 @@
         if (modalName === 'category') {
             isModalCategoryOpen.value = isOpen;
         }
+        //if isOpen is false, reset the modal titles to their default values
+        if (!isOpen) {
+            titreModalProduit.value = 'Nouveau produit';
+            titreModalCategorie.value = 'Nouvelle catégorie'; 
+            // reset fields
+            productId.value = null;
+            productName.value = '';
+            productPriceUnit.value = 0;
+            productStock.value = 0;
+            productCategorie.value = null;
+
+            nameInput.value = null;
+            categoryName.value = '';
+            PriceUnitInput.value = null;
+            stockInput.value = null;
+            isValidName.value = false;
+        }
+
     };
 
     const closeSliding = (event: any) => {
@@ -260,6 +305,65 @@
         }
     };
 
+    const isInAnyCartAlert = ref(false);
+    const setIsInAnyCartAlert = (open: boolean) => {
+        isInAnyCartAlert.value = open;
+    };
+    const acceptRemoveProduct = ref(false);
+    const toRemove = ref<{ type?: string, id?: number }>({});
+    const setAcceptRemoveProduct = (open: boolean, type?: string, id?: number) => {
+        acceptRemoveProduct.value = open;
+        if (open) {
+            toRemove.value = { type: type, id: id };
+        } else {
+            toRemove.value = { type: undefined, id: undefined };
+        }
+    };
+    const acceptRemoveProductButtons = [
+    {
+        text: 'Confirmer',
+        handler: async () => {
+            if (!toRemove.value.id || !toRemove.value.type) {
+                console.warn('No product or type specified for removal.');
+                setAcceptRemoveProduct(false);
+                return;
+            }
+            if(toRemove.value.type === 'product') {
+                // check if the product is in any cart
+                let isInAnyCart = await tableStore.isProductInAnyCart(toRemove.value.id);
+                if (isInAnyCart) {
+                    // handle the case when the product is in any cart
+                    console.warn('Product is in one or more carts and cannot be removed.');
+                    setIsInAnyCartAlert(true);
+                    return;
+                }
+                // proceed with removal if not in any cart
+                await productStore.deleteProduct(toRemove.value.id);
+            }
+
+            if(toRemove.value.type === 'category') {
+                // check if any products belong to this category
+                let hasProducts = await productStore.fetchProductsByCategory(toRemove.value.id);
+                if (hasProducts && hasProducts.length > 0) {
+                    console.warn('Category has one or more products and cannot be removed.');
+                    setIsInAnyCartAlert(true);
+                    return;
+                }
+                // proceed with removal if no products belong to this category
+                await categoryStore.deleteCategory(toRemove.value.id);
+            }
+            setAcceptRemoveProduct(false);
+            setIsInAnyCartAlert(false);
+        }
+    },
+    {
+        text: 'Annuler',
+        role: 'cancel',
+        handler: () => {            
+            setAcceptRemoveProduct(false);
+        }
+    }
+];
     const markTouched = (inputRef: any) => {
         inputRef.value.$el?.classList?.add('ion-touched');
     };
@@ -345,6 +449,13 @@
                 // update category
                 await categoryStore.updateCategory(categoryId.value, {
                     name: categoryName.value
+                });
+
+                // update category in the local store of productStore.products
+                productStore.products.forEach(product => {
+                    if (product.category_id === categoryId.value) {
+                        product.category.name = categoryName.value;
+                    }
                 });
             } else {
                 // create new category

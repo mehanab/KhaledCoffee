@@ -238,6 +238,22 @@ export const useTableStore = defineStore('table', {
                 console.error('Error removing cart item:', error);
                 throw error;
             }
+        },
+
+        // check any cart having product id
+        async isProductInAnyCart(productId: number) {
+            try {
+                const { data, error } = await supabase
+                    .from('carts_items')
+                    .select('*')
+                    .eq('product_id', productId);
+
+                if (error) throw error;
+                return data.length > 0;
+            } catch (error) {
+                console.error('Error checking product in carts:', error);
+                throw error;
+            }
         }
     }
 });

@@ -55,5 +55,20 @@ export const useCategoryStore = defineStore('category', {
                 console.error('Error updating category:', error);
             }
         },
+
+        async deleteCategory(categoryId: number) {
+            try {
+                const { error } = await supabase
+                    .from('categories')
+                    .delete()
+                    .eq('id', categoryId);
+
+                if (error) throw error;
+
+                this.categories = this.categories.filter(c => c.id !== categoryId);
+            } catch (error) {
+                console.error('Error deleting category:', error);
+            }
+        }
     },
 });
