@@ -12,3 +12,14 @@ http://ionicframework.com/docs/theming/ */
     --ion-color-primary-shade: #6e6110;
     --ion-color-primary-tint: #b39b5c;
 }
+
+/* define variable colors */
+/* red color */
+:root {
+    --red: #462d2d;
+    --red-rgb: 70, 45, 45;
+    --red-contrast: #ffffff;
+    --red-contrast-rgb: 255, 255, 255;
+    --red-shade: #3a2323;
+    --red-tint: #5c3b3b;
+}

@@ -375,7 +375,7 @@ const updateCartItemQuantity = async (cartItem: any, quantity: number) => {
 
 ion-button {
     &.detail-table-close-btn {
-        --background: #462d2d;
+        --background: var(--red);
         --opacity: 0.5;
     }
 

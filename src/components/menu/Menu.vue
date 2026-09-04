@@ -38,7 +38,7 @@
                                         <ion-item-option color="primary" @click="setOpen('product', true); closeSliding($event); isValidName = true; productId = product.id; productName = product.name; productPriceUnit = product.unit_price; productStock = product.stock; productCategorie = product.category_id;titreModalProduit = 'Modifier le produit';">
                                             <ion-icon slot="icon-only" :icon="create" size="large"></ion-icon>
                                         </ion-item-option>
-                                        <ion-item-option color="danger" @click="setAcceptRemoveProduct(true, 'product', product.id); closeSliding($event);">
+                                        <ion-item-option class="delete-btn" color="" @click="setAcceptRemoveProduct(true, 'product', product.id); closeSliding($event);">
                                             <ion-icon slot="icon-only" :icon="trash" size="large"></ion-icon>
                                         </ion-item-option>
                                     </ion-item-options>
@@ -59,7 +59,7 @@
                                     <ion-item-option color="primary" @click="setOpen('category', true); closeSliding($event); isValidName = true; categoryId = category.id; categoryName = category.name; titreModalCategorie = 'Modifier la catégorie';">
                                         <ion-icon slot="icon-only" :icon="create" size="large"></ion-icon>
                                     </ion-item-option>
-                                    <ion-item-option color="danger" @click="setAcceptRemoveProduct(true, 'category', category.id); closeSliding($event);">
+                                    <ion-item-option class="delete-btn" color="" @click="setAcceptRemoveProduct(true, 'category', category.id); closeSliding($event);">
                                         <ion-icon slot="icon-only" :icon="trash" size="large"></ion-icon>
                                     </ion-item-option>
                                 </ion-item-options>
@@ -488,3 +488,10 @@
         }
     });
 </script>
+
+<style scoped>
+    .delete-btn {
+        --background: var(--red)!important;
+        --opacity: 0.5;
+    }
+</style>
