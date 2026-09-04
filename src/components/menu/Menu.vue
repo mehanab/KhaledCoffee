@@ -221,8 +221,8 @@
         </ion-alert>
         <ion-alert  :is-open="isInAnyCartAlert"
             header="Action impossible"
-            :sub-header="toRemove.type === 'product' ? 'Ce Produit est présent dans un ou plusieurs tables ouvertes.' : 'Cette catégorie contient un ou plusieurs produits.'"
-            :message="toRemove.type === 'product' ? 'Il ne peut pas être supprimé tant qu\'il est en cours de vente.' : 'Vous devez d\'abord supprimer tous les produits de cette catégorie.'"
+            :sub-header="isInAnyCartAlertSubHeader"
+            :message="isInAnyCartAlertMessage"
             :buttons="[{ text: 'OK', role: 'cancel' }]"
             @didDismiss="setIsInAnyCartAlert(false)"
             >
@@ -306,8 +306,18 @@
     };
 
     const isInAnyCartAlert = ref(false);
+    const isInAnyCartAlertSubHeader = ref('');
+    const isInAnyCartAlertMessage = ref('');
     const setIsInAnyCartAlert = (open: boolean) => {
         isInAnyCartAlert.value = open;
+        if (open && toRemove.value.type === 'product') {
+            isInAnyCartAlertSubHeader.value = 'Ce Produit est présent dans un ou plusieurs tables ouvertes.';
+            isInAnyCartAlertMessage.value = 'Il ne peut pas être supprimé tant qu\'il est en cours de vente.';
+        }
+        if (open && toRemove.value.type === 'category') {
+            isInAnyCartAlertSubHeader.value = 'Cette catégorie contient un ou plusieurs produits.';
+            isInAnyCartAlertMessage.value = 'Vous devez d\'abord supprimer tous les produits de cette catégorie.';
+        }
     };
     const acceptRemoveProduct = ref(false);
     const toRemove = ref<{ type?: string, id?: number }>({});
