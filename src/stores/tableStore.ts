@@ -30,7 +30,7 @@ export const useTableStore = defineStore('table', {
             try {
                 const { data, error } = await supabase
                     .from('tables')
-                    .select(`*, carts (*, carts_items (*, product:products (*)))`)
+                    .select(`*, carts (*, user:profiles (*), carts_items (*, product:products (*)))`)
                     .limit(1, { referencedTable: 'carts' });
 
                 if (error) throw error;

@@ -33,6 +33,10 @@
                         <ion-text color="primary">{{ currentTable.cart ? getElapsed(currentTable.cart.created_at) : '00:00' }}</ion-text>
                     </ion-col>
                 </ion-row>
+                <ion-text color="medium">
+                    <p>Crée par {{ currentTable.cart?.user?.first_name ?? 'N/A' }} {{ currentTable.cart?.user?.last_name ?? '' }}</p>
+                </ion-text>
+
                  <ion-row class="row">
                     <ion-col>
                         <ion-text color="medium">
