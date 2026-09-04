@@ -8,7 +8,7 @@
 			<ion-card color="base" :bordered="false">
 				<ion-card-header>
 					<ion-card-subtitle>Bonjour,</ion-card-subtitle>
-					<ion-card-title>{{ auth.user?.email }}</ion-card-title>
+					<ion-card-title>{{ auth.user && auth.user?.profile?.full_name ? auth.user?.profile?.full_name : auth.user?.email }}</ion-card-title>
 				</ion-card-header>
 				<ion-card-content class="tables">
 					<div class="ion-display-flex ion-justify-content-between ion-align-items-center">
@@ -254,6 +254,7 @@ onMounted(async () => {
 		error.value = err;
 	}
 
+	console.log('Tables fetched:', tables.value);
 	// update time every second
 	interval = setInterval(() => {
 		now.value = new Date()
