@@ -253,8 +253,6 @@ onMounted(async () => {
 	} catch (err) {
 		error.value = err;
 	}
-
-	console.log('Tables fetched:', tables.value);
 	// update time every second
 	interval = setInterval(() => {
 		now.value = new Date()
