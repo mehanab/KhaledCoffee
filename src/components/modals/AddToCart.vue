@@ -12,14 +12,14 @@
         <ion-content :fullscreen="true">
             <ion-card color="base">
 				<ion-card-header>
-                    <ion-searchbar @ionInput="handleSearchProducts($event)" placeholder="Rechercher" ></ion-searchbar>
+                    <ion-searchbar @ionInput="handleSearchProducts($event)" placeholder="Rechercher un produit" ></ion-searchbar>
                 </ion-card-header>
                 <ion-segment :scrollable="true" v-model="selectedCategory" @ionChange="handleSegmentChange($event)">
                         <ion-segment-button value="all">
                             <ion-label>Toutes</ion-label>
                         </ion-segment-button>
                         <ion-segment-button
-                            v-for="category in categories"
+                            v-for="category in categories.sort((a, b) => a.name.localeCompare(b.name))"
                             :key="category.id"
                             :value="category.name"
                         >
@@ -94,7 +94,10 @@
         const selectedCat = selectedCategory.value;
 
         if (!term && selectedCat === 'all') {
-            return groupedByCategory.value;
+            return Object.keys(groupedByCategory.value).sort().reduce((acc, category) => {
+                acc[category] = groupedByCategory.value[category];
+                return acc;
+            }, {});
         } else if (term && selectedCat === 'all') {
             return Object.keys(groupedByCategory.value).reduce((acc, category) => {
                 const filteredProducts = groupedByCategory.value[category].filter((product: any) =>
@@ -121,6 +124,7 @@
             };
         }
     });
+    console.log('Filtered grouped by category :', filteredGroupedByCategory.value);
 
     const handleSearchProducts = (event: Event) => {
         const target = event.target as HTMLInputElement;
