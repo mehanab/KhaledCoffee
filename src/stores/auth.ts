@@ -39,13 +39,12 @@ export const useAuthStore = defineStore('auth', {
 					}
 				}
 				
-
-
-
 				this.session = data.session
 				this.user = data.session?.user ?? null
 				this.isLoggedIn = !!data.session
-				this.user.profile = await getUserData(this.user);
+				if (this.user) {
+					this.user.profile = await getUserData(this.user);
+				}
 
 				//console.log('Initial session:', this.session)
 
@@ -53,8 +52,10 @@ export const useAuthStore = defineStore('auth', {
 					this.session = session
 					this.user = session?.user ?? null
 					this.isLoggedIn = !!session
-					this.user.profile = await getUserData(this.user);
-					this.user.profile.full_name = `${this.user.profile.first_name ?? ''} ${this.user.profile.last_name ?? ''}`.trim()
+					if (this.user) {
+						this.user.profile = await getUserData(this.user);
+						this.user.profile.full_name = `${this.user.profile.first_name ?? ''} ${this.user.profile.last_name ?? ''}`.trim()
+					}
 
 					if (event === 'SIGNED_IN') {
 						// console.log('User connected')
