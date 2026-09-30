@@ -103,11 +103,11 @@
                         <ion-button @click="setOpen(false)">Fermer</ion-button>
                     </ion-buttons>
                 </ion-toolbar>
-                <ion-item>
-                    <ion-input label="Libellé" v-model="cartLibelle"></ion-input>
+                <ion-item lines="none">
+                    <ion-input label="Libellé" v-model="cartLibelle" fill="outline" class="ion-margin-vertical"></ion-input>
                 </ion-item>
-                <ion-item>
-                    <ion-input label="Nombre de personnes" type="number" v-model="cartPeople"></ion-input>
+                <ion-item lines="none">
+                    <ion-input label="Nombre de personnes" type="number" v-model="cartPeople" fill="outline" class="ion-margin-vertical"></ion-input>
                  </ion-item>
                 <ion-button expand="block" color="success" @click="openUpdateTable()">
                     <ion-icon :icon="lockOpen" slot="start"></ion-icon>

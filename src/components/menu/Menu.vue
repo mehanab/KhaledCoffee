@@ -163,7 +163,7 @@
                         <ion-select-option v-for="categorie in allCategories" :key="categorie.id" :value="categorie.id">{{ categorie.name }}</ion-select-option>
                     </ion-select>
                 </ion-item>
-                <ion-button expand="block" color="success" @click="createProduct()" :disabled="!isValidName || productPriceUnit <= 0 || productStock < 0 || !productCategorie">
+                <ion-button expand="block" color="success" class="ion-margin-vertical" @click="createProduct()" :disabled="!isValidName || productPriceUnit <= 0 || productStock < 0 || !productCategorie">
                     <ion-icon :icon="checkmarkOutline" slot="start"></ion-icon>
                     Enregistrer le produit
                 </ion-button>
@@ -205,7 +205,7 @@
                         >
                     </ion-input>
                 </ion-item>
-                <ion-button expand="block" color="success" @click="createCategory()" :disabled="!isValidName">
+                <ion-button expand="block" color="success" @click="createCategory()" :disabled="!isValidName" class="ion-margin-vertical">
                     <ion-icon :icon="checkmarkOutline" slot="start"></ion-icon>
                     Enregistrer la catégorie
                 </ion-button>

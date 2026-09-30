@@ -126,7 +126,7 @@
 							<ion-button @click="setOpen(false)">Fermer</ion-button>
 						</ion-buttons>
 					</ion-toolbar>
-					<ion-item>
+					<ion-item lines="none">
 						<ion-input 
 							ref="cartInput"
 							label="Numéro de table"
@@ -135,24 +135,40 @@
 							v-model="cartNumber"
 							helper-text="Le numéro doit être unique et ne doit pas contenir de lettres"
 							error-text="Numéro invalide ou déjà utilisé"
+							class="ion-margin-vertical"
+							fill="outline"
 							@ionInput="getValidationNumber"
     						@ionBlur="markTouched"
 							>
 						</ion-input>
 					</ion-item>
-					<ion-item>
-							<ion-select v-model="cartStatus" placeholder="Select status" label="Status" label-placement="floating">
+					<ion-item lines="none">
+							<ion-select 
+							v-model="cartStatus" 
+							placeholder="Select status" 
+							label="Status" 
+							label-placement="floating" 
+							class="ion-margin-vertical"
+							fill="outline"
+							>
 								<ion-select-option value="available">Disponible</ion-select-option>
 								<ion-select-option value="unavailable">Indisponible</ion-select-option>
 							</ion-select>
 					</ion-item>
-					<ion-item>
-						<ion-select v-model="cartLocation" placeholder="Select location" label="Localisation" label-placement="floating">
+					<ion-item lines="none">
+						<ion-select 
+						    v-model="cartLocation" 
+							placeholder="Select location" 
+							label="Localisation" 
+							label-placement="floating"
+							class="ion-margin-vertical"
+							fill="outline"
+							>
 							<ion-select-option value="salle">Salle</ion-select-option>
 							<ion-select-option value="terrasse">Terrasse</ion-select-option>
 						</ion-select>
 					</ion-item>
-					<ion-button expand="block" color="success" @click="createTable()" :disabled="!isValidNumber">
+					<ion-button expand="block" color="success" @click="createTable()" :disabled="!isValidNumber" class="ion-margin-vertical">
 						<ion-icon :icon="checkmarkOutline" slot="start"></ion-icon>
 						Enregistrer
 					</ion-button>
