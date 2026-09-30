@@ -16,3 +16,8 @@
 .bg-dark {
 	--ion-color-base: #121212;
 }
+
+.ion-rounded {
+  --border-radius: 10px !important; /* Pour les composants Ionic (Searchbar, Input, etc.) */
+  border-radius: 10px !important;   /* Pour les éléments HTML standards (div, span) */
+}
