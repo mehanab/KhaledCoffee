@@ -5,7 +5,7 @@
                 <ion-back-button text="" :icon="arrowBackOutline"></ion-back-button>
             </ion-buttons>
             <!-- center title -->
-            <ion-title>Détails table {{ currentTable.number }} {{ currentTable.cart && currentTable.cart.libelle ? ' - ' + currentTable.cart.libelle : '' }}</ion-title>
+            <ion-title>Table {{ currentTable.number }} {{ currentTable.cart && currentTable.cart.libelle ? ' - ' + currentTable.cart.libelle : '' }}</ion-title>
         </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
