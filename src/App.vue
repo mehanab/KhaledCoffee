@@ -8,11 +8,15 @@
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import { onMounted } from 'vue';
 import { useAuthStore } from './stores/auth'
-import Tabs from './components/Tabs.vue'
+import { useSettingsStore } from './stores/settingsStore'
+// import Tabs from './components/Tabs.vue'
 
 const auth = useAuthStore()
+const params = useSettingsStore()
 
-onMounted(() => {
+onMounted(async () => {
     auth.init();
+    await params.fetchSettings();
+    params.subscribeToSettings();
 })
 </script>

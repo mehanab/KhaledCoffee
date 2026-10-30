@@ -2,13 +2,12 @@
 		<ion-header :translucent="false">
 			<Toolbar :title="appName" />
 		</ion-header>
-
 		<ion-content :fullscreen="true">
 
 			<ion-card color="base" :bordered="false">
 				<ion-card-header>
-					<ion-card-subtitle>Bonjour,</ion-card-subtitle>
-					<ion-card-title>{{ auth.user && auth.user?.profile?.full_name ? auth.user?.profile?.full_name : auth.user?.email }}</ion-card-title>
+					<ion-card-subtitle></ion-card-subtitle>
+					<ion-card-title><ion-text color="medium">Bonjour </ion-text>{{ auth.user && auth.user?.profile?.full_name ? auth.user?.profile?.full_name : auth.user?.email }}</ion-card-title>
 				</ion-card-header>
 				<ion-card-content class="tables">
 					<div class="ion-display-flex ion-justify-content-between ion-align-items-center">
@@ -42,7 +41,7 @@
 								</ion-text>
 							</ion-label>
 							<ion-text v-if="table.cart" color="primary" class="ion-margin ion-text-end">
-								<ion-text color="secondary">{{ parseFloat(table.cart?.total || '0').toFixed(2) }} DA</ion-text>
+								<ion-text color="secondary">{{ parseFloat(table.cart?.total || '0').toFixed(2) }} {{ currency }}</ion-text>
 								<p>{{ getElapsed(table.cart.created_at, now) }}</p>
 							</ion-text>
 						</ion-item>
@@ -72,7 +71,7 @@
 									</ion-text>
 								</ion-label>
 								<ion-text color="primary" class="ion-margin ion-text-end">
-									<ion-text color="medium">0.00 DA</ion-text>
+									<ion-text color="medium">0.00 {{ currency }}</ion-text>
 								</ion-text>
 							</ion-item>
 					</ion-nav-link>
@@ -101,7 +100,7 @@
 								</ion-text>
 							</ion-label>
 							<ion-text color="primary" class="ion-margin ion-text-end">
-								<ion-text color="medium">0.00 DA</ion-text>
+								<ion-text color="medium">0.00 {{ currency }}</ion-text>
 							</ion-text>
 						</ion-item>
 						<ion-item-options slot="end">
@@ -179,19 +178,23 @@
 
 <script setup lang="ts">
 import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, IonIcon, IonNavLink, IonButtons, IonLabel, IonFab, IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonThumbnail, IonText, IonModal, IonInput, IonSelect, IonSelectOption, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/vue';
-import { add, peopleOutline, timeOutline, checkmarkOutline, flash } from 'ionicons/icons';
+import { add, peopleOutline, timeOutline, checkmarkOutline, flash, settings } from 'ionicons/icons';
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, ref, markRaw, computed, onUnmounted } from 'vue';
 import TablesDetails from './TablesDetails.vue';
 import { getElapsed } from '../../utils/functions';
 import Toolbar from '../Toolbar.vue';
-
 import { useTableStore } from '../../stores/tableStore';
+import { useSettingsStore } from '@/stores/settingsStore';
+import { storeToRefs } from 'pinia';
+const settingsStore = useSettingsStore();
+const { appName, currency } = storeToRefs(settingsStore)
+
 const tableStore = useTableStore();
 
 const tablesDetails = markRaw(TablesDetails);
 const auth = useAuthStore();
-const appName = import.meta.env.VITE_APP_NAME || 'Khaffee Shop'
+console.log('app name ', appName);
 
 const tables = computed(() => tableStore.tables);
 const error = ref<any>(null)
@@ -324,9 +327,6 @@ ion-thumbnail {
 .tables {
 
 	.table {
-		margin: 0.5em 0;
-		border-radius: 10px;
-	
 		.table-text {
 			font-size: 0.8rem;
 		}

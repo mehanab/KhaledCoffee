@@ -38,7 +38,7 @@
                             </ion-avatar>
                             <ion-label>
                                 {{ product.name }}
-                                <p>{{ parseFloat(product.unit_price).toFixed(2) }} DA - Qté restante: {{ product.stock }}</p>
+                                <p>{{ parseFloat(product.unit_price).toFixed(2) }} {{ currency }} - Qté restante: {{ product.stock }}</p>
                             </ion-label>
                             <ion-button v-if="!currentTable.cart?.carts_items?.find((item: any) => item.product_id === product.id)" fill="clear" size="small" slot="end" @click="upsertCartItem(product, getProductQuantityInCart(product.id) + 1)" :disabled="product.stock <= 0 || addingProduct === product.id">
                                 <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
@@ -59,6 +59,10 @@
     import { ref, onMounted, computed } from 'vue';
     import { useTableStore } from '../../stores/tableStore';
     import { useProductStore } from '../../stores/productStore';
+    import { useSettingsStore } from '@/stores/settingsStore';
+    import { storeToRefs } from 'pinia';
+    const settingsStore = useSettingsStore();
+    const { currency } = storeToRefs(settingsStore)
 
     const tableStore = useTableStore();
     const productStore = useProductStore();

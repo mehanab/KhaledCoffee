@@ -8,6 +8,9 @@
 	--color: var(--ion-color-primary);
 }
 
+ion-content {
+    --background: #0b0c0e;
+}
 .bold-icon {
   font-size: 2em;      /* plus gros = effet “gras” */
   --ionicon-stroke-width: 2em; /* rend l’icône plus épaisse */
@@ -20,4 +23,41 @@
 .ion-rounded {
   --border-radius: 10px !important; /* Pour les composants Ionic (Searchbar, Input, etc.) */
   border-radius: 10px !important;   /* Pour les éléments HTML standards (div, span) */
+}
+
+.summary-grid, ion-item {
+    margin: 12px 0;
+    border: 1px solid #333539;
+    border-radius: 10px;
+    background: #111214;
+}
+
+.summary-grid ion-col {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 3px;
+    text-align: center;
+}
+
+.summary-grid ion-col + ion-col {
+    border-left: 1px solid #303135;
+}
+
+.summary-grid ion-icon {
+    color: #dbb55c;
+    font-size: 20px;
+}
+
+.summary-grid span {
+    color: #b8b9bd;
+    font-size: 10px;
+}
+
+.summary-grid strong {
+    color: #fff;
+    font-size: 15px;
 }

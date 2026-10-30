@@ -9,30 +9,30 @@
         </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-            <ion-grid class="ion-text-center" :fixed="true">
-                <ion-row class="first-row row">
+            <ion-grid class="ion-text-center summary-grid">
+                <ion-row>
                     <ion-col>
-                        <ion-text color="medium">
-                            <p>Occupants</p>
-                        </ion-text>
-                        <ion-text color="medium">
+                        <ion-text color="medium">Occupants</ion-text>
+                        <ion-text class="ion-padding" color="medium">
                             <ion-icon :icon="people"></ion-icon>
+                            {{ currentTable.cart ? currentTable.cart.guests : '0' }}
                         </ion-text>
-                        <ion-text class="ion-padding">{{ currentTable.cart ? currentTable.cart.guests : '0' }}</ion-text>
                     </ion-col>
                     <ion-col>
-                        <ion-text color="medium">
-                            <p>Ouverture</p>
+                        <ion-text color="medium">Ouverture</ion-text>
+                        <ion-text class="ion-padding">
+                            {{ currentTable.cart ? new Date(currentTable.cart.created_at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'N/A' }}
                         </ion-text>
-                        <span>{{ currentTable.cart ? new Date(currentTable.cart.created_at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'N/A' }}</span>
                     </ion-col>
                     <ion-col>
-                        <ion-text color="medium">
-                            <p>Ecoulé</p>
+                        <ion-text color="medium">Ecoulé</ion-text>
+                        <ion-text color="primary" class="ion-padding">
+                            {{ currentTable.cart ? getElapsed(currentTable.cart.created_at) : '00:00' }}
                         </ion-text>
-                        <ion-text color="primary">{{ currentTable.cart ? getElapsed(currentTable.cart.created_at) : '00:00' }}</ion-text>
                     </ion-col>
                 </ion-row>
+            </ion-grid>
+            <ion-grid  class="ion-text-center">
                 <ion-text color="medium">
                     <p>Crée par {{ currentTable.cart?.user?.first_name ?? 'N/A' }} {{ currentTable.cart?.user?.last_name ?? '' }}</p>
                 </ion-text>
@@ -44,7 +44,7 @@
                         </ion-text>
 
                         <ion-text>
-                            <h2>{{ currentTable.cart ? parseFloat(currentTable.cart?.total).toFixed(2) : '0.00' }} DA</h2>
+                            <h2>{{ currentTable.cart ? parseFloat(currentTable.cart?.total).toFixed(2) : '0.00' }} {{ currency }}</h2>
                         </ion-text>
                     </ion-col>
                 </ion-row>
@@ -57,7 +57,7 @@
                     </ion-avatar>
                     <ion-label>
                         <h2>{{ item.product_name }}</h2>
-                        <p>{{ parseFloat(item.product_unit_price).toFixed(2) }} DA</p>
+                        <p>{{ parseFloat(item.product_unit_price).toFixed(2) }} {{ currency }}</p>
                         <ion-note color="medium">Qté restante: {{ item.product.stock}}</ion-note>
                     </ion-label>
                     <ion-button fill="clear" size="small" @click="updateCartItemQuantity(item, item.quantity - 1)" color="medium" :disabled="updatingQuantity === item.id">
@@ -96,18 +96,38 @@
         </ion-button>
 
          <ion-modal ref="modal" :is-open="isOpen" @did-dismiss="setOpen(false)">
+            <ion-toolbar>
+                <ion-title>Informations</ion-title>
+                <ion-buttons slot="end">
+                    <ion-button @click="setOpen(false)">Fermer</ion-button>
+                </ion-buttons>
+            </ion-toolbar>
             <ion-content class="ion-padding">
-                <ion-toolbar>
-                    <ion-title>Informations</ion-title>
-                    <ion-buttons slot="end">
-                        <ion-button @click="setOpen(false)">Fermer</ion-button>
-                    </ion-buttons>
-                </ion-toolbar>
                 <ion-item lines="none">
-                    <ion-input label="Libellé" v-model="cartLibelle" fill="outline" class="ion-margin-vertical"></ion-input>
+                    <ion-input 
+                        label="Libellé" 
+                        type="text"
+                        v-model="cartLibelle" 
+                        placeholder="Entrez le libellé"
+                        label-placement="floating"
+                        fill="outline" 
+                        class="ion-margin-vertical"
+                        helper-text="Le libellé est requis"
+                        required
+                        >
+                    </ion-input>
                 </ion-item>
                 <ion-item lines="none">
-                    <ion-input label="Nombre de personnes" type="number" v-model="cartPeople" fill="outline" class="ion-margin-vertical"></ion-input>
+                    <ion-input 
+                    label="Nombre de personnes" 
+                    type="number" 
+                    v-model="cartPeople" 
+                    fill="outline" 
+                    class="ion-margin-vertical"
+                    label-placement="floating"
+                    helper-text="Le nombre de personnes est requis"
+                    required
+                    ></ion-input>
                  </ion-item>
                 <ion-button expand="block" color="success" @click="openUpdateTable()">
                     <ion-icon :icon="lockOpen" slot="start"></ion-icon>
@@ -155,6 +175,11 @@ import { useTableStore } from '../../stores/tableStore';
 import { useOrderStore } from '../../stores/orderStore';
 import { useProductStore } from '../../stores/productStore';
 import AddToCart from '../modals/AddToCart.vue';
+import { useSettingsStore } from '@/stores/settingsStore';
+import { storeToRefs } from 'pinia';
+
+const settingsStore = useSettingsStore();
+const { currency } = storeToRefs(settingsStore)
 
 const tableStore = useTableStore();
 const orderStore = useOrderStore();

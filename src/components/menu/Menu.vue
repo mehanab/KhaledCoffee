@@ -28,7 +28,7 @@
                                         </ion-avatar>
                                         <ion-label>
                                             {{ product.name }}
-                                            <p>{{ parseFloat(product.unit_price).toFixed(2) }} DA - stock: {{ product.stock }}</p>
+                                            <p>{{ parseFloat(product.unit_price).toFixed(2) }} {{ currency }} - stock: {{ product.stock }}</p>
                                         </ion-label>
                                         <!-- <ion-button v-if="!currentTable.cart?.carts_items?.find((item: any) => item.product_id === product.id)" fill="clear" size="small" slot="end" @click="upsertCartItem(product, getProductQuantityInCart(product.id) + 1)">
                                             <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
@@ -237,6 +237,11 @@
     import { useProductStore } from '../../stores/productStore';
     import { useCategoryStore } from '../../stores/categoryStore';
     import { useTableStore } from '../../stores/tableStore';
+    import { useSettingsStore } from '@/stores/settingsStore';
+    import { storeToRefs } from 'pinia';
+    const settingsStore = useSettingsStore();
+    const { currency } = storeToRefs(settingsStore)
+
     const productStore = useProductStore();
     const tableStore = useTableStore();
 

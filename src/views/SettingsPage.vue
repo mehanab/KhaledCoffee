@@ -1,11 +1,18 @@
 <template>
-  <ion-page>
-    <ion-content>
-      <h1>Settings</h1>
-    </ion-content>
-  </ion-page>
+	<ion-page>
+		<ion-page>
+			<ion-nav ref="nav" :root="component"></ion-nav>
+		</ion-page>
+	</ion-page>
 </template>
 
 <script setup lang="ts">
-  import { IonPage, IonContent } from '@ionic/vue';
+  import { markRaw } from 'vue';
+  import { IonNav, IonPage } from '@ionic/vue';
+  import Settings from '../components/settings/Settings.vue';
+  import { ref, provide } from 'vue';
+
+  const component = markRaw(Settings);
+  const nav = ref<InstanceType<typeof IonNav>>();
+  provide('ionSettingsNav', nav);
 </script>
