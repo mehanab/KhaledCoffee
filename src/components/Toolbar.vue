@@ -27,7 +27,7 @@
     const props = defineProps({
         title: {
             type: String,
-            default: 'Khaled Coffee'
+            default: import.meta.env.VITE_APP_NAME || 'KhaffeeShop'
         },
         showMenuButton: {
             type: Boolean,
