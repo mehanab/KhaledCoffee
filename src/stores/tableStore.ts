@@ -1,14 +1,53 @@
 import { defineStore } from 'pinia'
 import { supabase } from '../utils/supabase'
 import { useAuthStore } from './auth';
-const authStore = useAuthStore();
+
+interface CartItem {
+    id: number;
+    cart_id: number;
+    product_id: number;
+    quantity: number;
+    product: {
+        id: number;
+        name: string;
+        price: number;
+    };
+}
+
+interface Cart {
+    id: number;
+    table_id: number;
+    user_id: string;
+    total: number;
+    created_at: string;
+    carts_items: CartItem[];
+}
 
 export const useTableStore = defineStore('table', {
     state: () => ({
-        tables: [] as {id: number, created_at: string, number: number, status: string, location: string, cart?: any}[],
-        currentTable: null as any,
+        tables: [] as {id: number, created_at: string, number: number, status: string, location: string, cart?: Cart}[],
+        currentTable: null as {id: number, created_at: string, number: number, status: string, location: string, cart?: Cart} | null,
     }),
     actions: {
+        async subscribeToTables() {
+            const subscription = supabase
+                .channel('tables-changes')
+                .on(
+                    'postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'tables' 
+
+                    }, 
+                    payload => {
+                        this.fetchTables();
+                    }
+                )
+                .subscribe();
+            return subscription;
+        },
+
         async closeTable(tableId: number) {
             try {
                 const { error } = await supabase
@@ -51,17 +90,19 @@ export const useTableStore = defineStore('table', {
             try {
                 const { data, error } = await supabase
                     .from('tables')
-                    .select(`*, carts (*, cart_items (*, product:products (*)))`)
+                    .select(`*, carts (*, carts_items (*, product:products (*)))`)
                     .eq('id', tableId)
                     .single();
 
                 if (error) throw error;
 
                 const { carts, ...rest } = data;
-                this.currentTable = {
+                let table = {
                     ...rest,
                     cart: carts?.[0] ?? null
                 };
+                //this.currentTable = table;
+                return table;
             } catch (error) {
                 console.error('Error fetching table:', error);
             }
@@ -105,6 +146,44 @@ export const useTableStore = defineStore('table', {
 
 
         // ----------------------------------------- cart ---------------------------
+
+         async subscribeToCarts() {
+            const subscription = supabase
+                .channel('carts-changes')
+                .on(
+                    'postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'carts' }, 
+                    async payload => {
+                        try {
+                            const tableUpdated = await this.fetchTableById(payload.new.table_id);
+                            this.tables = this.tables.map(table =>
+                                table.id === tableUpdated.id ? tableUpdated : table
+                            );
+                            // update the current table if it matches the updated table
+                            if (this.currentTable?.id === tableUpdated.id) {
+                                this.currentTable = tableUpdated;
+                            }
+                        } catch (error) {
+                            console.error('Error updating table for cart change:', error);
+                        }
+                    }
+                )
+                .on(
+                    'postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'carts_items' 
+                    }, 
+                    async payload => {
+                        console.log('Carts items change payload:', payload);
+                    }
+                )
+                .subscribe();
+        },
 
         // create a new cart for a table
         // async createCart(tableId: number) {
@@ -150,6 +229,7 @@ export const useTableStore = defineStore('table', {
 
         // upsert cart 
         async upsertCart(cart: { id: number, table_id: number, total: number, guest_count?: number, libelle?: string, user_id?: number }) {
+            const authStore = useAuthStore();
             cart.user_id = cart.user_id ?? authStore.user?.id ?? null;
             try {
                 const { data, error } = await supabase
@@ -183,7 +263,12 @@ export const useTableStore = defineStore('table', {
                 const newTotal = (cart.total || 0) + (product.unit_price * quantity);
 
                 // set total cart price
-                const cartData = await this.upsertCart({ id: cart.id, table_id: this.currentTable.id, total: newTotal });
+                let cartData;
+                if (this.currentTable && this.currentTable.id) {
+                    cartData = await this.upsertCart({ id: cart.id, table_id: this.currentTable?.id, total: newTotal });
+                } else {
+                    console.warn('No current table found to update cart total.');
+                }
                 return cartData;
             } catch (error) {
                 console.error('Error upserting cart item:', error);
@@ -209,7 +294,12 @@ export const useTableStore = defineStore('table', {
                     }
 
                 // set total cart price
-                const cartData = await this.upsertCart({ id: cart.id, table_id: this.currentTable.id, total: newTotal });
+                let cartData;
+                if (this.currentTable && this.currentTable.id) {
+                    cartData = await this.upsertCart({ id: cart.id, table_id: this.currentTable.id, total: newTotal });
+                } else {
+                    console.warn('No current table found to update cart total.');
+                }
                 return cartData;
             } catch (error) {
                 console.error('Error updating cart item quantity:', error);
@@ -229,10 +319,15 @@ export const useTableStore = defineStore('table', {
 
                 if (error) throw error;
 
-                const newTotal = (this.currentTable.cart.total || 0) - (data.product_unit_price * data.quantity);
+                const newTotal = (this.currentTable?.cart?.total || 0) - (data.product_unit_price * data.quantity);
 
                 // set total cart price
-                const cartData = await this.upsertCart({ id: cartId, table_id: this.currentTable.id, total: newTotal });
+                let cartData;
+                if (this.currentTable && this.currentTable.id) {
+                    cartData = await this.upsertCart({ id: cartId, table_id: this.currentTable.id, total: newTotal });
+                } else {
+                    console.warn('No current table found to update cart total.');
+                }
                 return cartData;
             } catch (error) {
                 console.error('Error removing cart item:', error);
