@@ -5,7 +5,7 @@ const authStore = useAuthStore();
 
 export const useTableStore = defineStore('table', {
     state: () => ({
-        tables: [] as any[],
+        tables: [] as {id: number, created_at: string, number: number, status: string, location: string, cart?: any}[],
         currentTable: null as any,
     }),
     actions: {

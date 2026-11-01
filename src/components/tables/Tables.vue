@@ -173,11 +173,12 @@
 					</ion-button>
 				</ion-content>
 			</ion-modal>
+			<ion-alert :is-open="alertOpen" @did-dismiss="alertOpen = false" header="Erreur" message="Une erreur est survenue" :buttons="buttonsError"></ion-alert>
 		</ion-content>
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, IonIcon, IonNavLink, IonButtons, IonLabel, IonFab, IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonThumbnail, IonText, IonModal, IonInput, IonSelect, IonSelectOption, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/vue';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, IonIcon, IonNavLink, IonButtons, IonLabel, IonFab, IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonThumbnail, IonText, IonModal, IonInput, IonSelect, IonSelectOption, IonItemSliding, IonItemOptions, IonItemOption, IonAlert } from '@ionic/vue';
 import { add, peopleOutline, timeOutline, checkmarkOutline, flash, settings } from 'ionicons/icons';
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, ref, markRaw, computed, onUnmounted } from 'vue';
@@ -190,13 +191,11 @@ import { storeToRefs } from 'pinia';
 const settingsStore = useSettingsStore();
 const { appName, currency } = storeToRefs(settingsStore)
 
-const tableStore = useTableStore();
-
 const tablesDetails = markRaw(TablesDetails);
 const auth = useAuthStore();
-console.log('app name ', appName);
 
-const tables = computed(() => tableStore.tables);
+const tableStore = useTableStore();
+const { tables } = storeToRefs(tableStore);
 const error = ref<any>(null)
 
 const openedTables = computed(() => tables.value.filter(table => table.cart).sort((a, b) => a.number < b.number ? -1 : 1))
@@ -211,6 +210,8 @@ const cartStatus = ref('available');
 const cartLocation = ref('salle');
 const cartNumber = ref('');
 const isValidNumber = ref(false);
+const alertOpen = ref(false);
+const buttonsError = [{ text: 'OK', role: 'cancel' }];
 
 async function createTable() {
 	if(!cartNumber.value || !isValidNumber.value || !cartStatus.value || !cartLocation.value) {
@@ -231,9 +232,9 @@ async function createTable() {
 		// Call the store action to create a new table
 		await tableStore.createTable(table);
 		setOpen(false);
-		console.log('Table created:', table);
+		alertOpen.value = false;
 	} catch (error) {
-		console.error('Error creating table:', error);
+		alertOpen.value = true;
 	}
 }
 
