@@ -62,6 +62,7 @@ export const useTableStore = defineStore('table', {
                 );
             } catch (error) {
                 console.error('Error closing table:', error);
+                throw error;
             }
         },
 
@@ -83,6 +84,7 @@ export const useTableStore = defineStore('table', {
                 });
             } catch (error) {
                 console.error('Error fetching tables:', error);
+                throw error;
             }
         },
 
@@ -105,6 +107,7 @@ export const useTableStore = defineStore('table', {
                 return table;
             } catch (error) {
                 console.error('Error fetching table:', error);
+                throw error;
             }
         }, 
 
