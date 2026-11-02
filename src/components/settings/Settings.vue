@@ -5,7 +5,7 @@
     </ion-header>
 
     <ion-content :fullscreen="true" class="ion-padding">
-        <ion-item :button="true" class="ion-display-flex" lines="none" type="button" @click="setOpen(true, { id: 0, created_at: '', key: 'appname', value: appNameSetting })">
+        <ion-item :button="true" class="ion-display-flex" lines="none" type="button" @click="setOpen(true, { id: 0, created_at: '', key: 'appname', value: appNameSetting })" color="base">
             <!-- // serache settings key: appname -->
             <ion-thumbnail  slot="start">
                 <img class="logo" src="/logo.svg"/>
@@ -14,7 +14,7 @@
                 <h2 class="">{{ appNameSetting }}</h2>
             </ion-label>
         </ion-item>
-        <ion-item :button="true" class="ion-display-flex" lines="none" v-for="setting in settings?.sort((a, b) => a.key.localeCompare(b.key))" :key="setting.id" type="button" @click="setOpen(true, setting)">
+        <ion-item :button="true" class="ion-display-flex" lines="none" v-for="setting in settings?.sort((a, b) => a.key.localeCompare(b.key))" :key="setting.id" type="button" @click="setOpen(true, setting)" color="base">
             <ion-icon :icon="homeOutline" slot="start" v-if="setting.key == 'adresse'"></ion-icon>
             <ion-icon :icon="settingsOutline" slot="start" v-else></ion-icon>
             <ion-label>

@@ -12,7 +12,7 @@
         <ion-content :fullscreen="true">
             <ion-card color="base">
 				<ion-card-header>
-                    <ion-searchbar @ionInput="handleSearchProducts($event)" placeholder="Rechercher un produit" ></ion-searchbar>
+                    <ion-searchbar @ionInput="handleSearchProducts($event)" placeholder="Rechercher un produit" class="searchbar"></ion-searchbar>
                 </ion-card-header>
                 <ion-segment :scrollable="true" v-model="selectedCategory" @ionChange="handleSegmentChange($event)">
                         <ion-segment-button value="all">
@@ -136,7 +136,7 @@
     };
 
     const getProductQuantityInCart = (productId: number) => {
-        const cartItems = currentTable.value.cart?.carts_items || [];
+        const cartItems = currentTable.value?.cart?.carts_items || [];
         const item = cartItems.find((item: any) => item.product_id === productId);
         return item ? item.quantity : 0;
     };
@@ -145,7 +145,7 @@
     const upsertCartItem = async (product: any, quantity: number) => {
         try {
             addingProduct.value = product.id;
-            if (!currentTable.value.cart) {
+            if (!currentTable.value?.cart) {
                 console.error('No cart found for this table');
                 addingProduct.value = null;
                 return;
@@ -160,7 +160,7 @@
             // Update the product stock_sold in the products table
             const dataProduct = await productStore.updateProductStock(product.id, quantityDiff);
             // Update the cart item in the cart_items table
-            const data = await tableStore.upsertCartItem(currentTable.value.cart, product, quantity);
+            const data = await tableStore.upsertCartItem(currentTable.value?.cart, product, quantity);
             // Update the local cart data in the table store
             console.log('Upserted cart item data:', data);
             tableStore.currentTable.cart = data;
@@ -235,6 +235,5 @@
 			--border-color: var(--ion-color-danger);
 		} */
 	}
-
 
 </style>

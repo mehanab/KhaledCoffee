@@ -20,7 +20,7 @@
         <div class="search-row">
             <ion-searchbar
                 v-model="searchTerm"
-                class="history-search"
+                class="searchbar"
                 placeholder="Rechercher une commande..."
                 :debounce="150"
             />
@@ -453,16 +453,6 @@ ion-segment-button {
     font-size: 12px;
 }
 
-.history-search {
-    --background: #191a1d;
-    --border-radius: 10px;
-    --box-shadow: none;
-    --color: #f5f5f5;
-    --placeholder-color: #929397;
-    flex: 1;
-    min-width: 0;
-    padding: 0;
-}
 
 .search-row {
     display: flex;

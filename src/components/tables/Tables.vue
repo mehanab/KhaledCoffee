@@ -25,7 +25,7 @@
 					<p v-if="error">Erreur de chargement des tables : {{ error.message }}</p>
 
 					<ion-nav-link v-if="openedTables.length" v-for="table in openedTables" :key="table.id" router-direction="forward" :component="tablesDetails" :component-props="{ table: table }">
-						<ion-item :button="true" class="ion-display-flex table opened" lines="none">
+						<ion-item :button="true" class="ion-display-flex table opened" lines="none" color="none">
 							<ion-thumbnail  slot="start">
 								<img src="/table.svg"/>
 							</ion-thumbnail>
@@ -56,7 +56,7 @@
 						</div>
 					</div>
 					<ion-nav-link v-if="closedTables.length" v-for="table in closedTables" :key="table.id" router-direction="forward" :component="tablesDetails" :component-props="{ table: table }">
-							<ion-item :button="true" class="ion-display-flex table closed" lines="none">
+							<ion-item :button="true" class="ion-display-flex table closed" lines="none" color="base">
 								<ion-thumbnail slot="start">
 									<img src="/table.svg" />
 								</ion-thumbnail>
@@ -85,7 +85,7 @@
 						</div>
 					</div>
 					<ion-item-sliding v-if="unavailableTables.length" v-for="table in unavailableTables" :key="table.id" class="table">
-						<ion-item :button="true" :disabled="table.status === 'unavailable'" class="ion-display-flex unavailable" lines="none">
+						<ion-item :button="true" :disabled="table.status === 'unavailable'" class="ion-display-flex unavailable" lines="none" color="base">
 							<ion-thumbnail slot="start">
 								<img src="/table.svg" />
 							</ion-thumbnail>

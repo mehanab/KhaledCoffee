@@ -18,6 +18,7 @@ interface Cart {
     id: number;
     table_id: number;
     user_id: string;
+    libelle: string;
     total: number;
     created_at: string;
     carts_items: CartItem[];
