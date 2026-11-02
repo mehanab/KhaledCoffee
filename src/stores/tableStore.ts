@@ -41,8 +41,24 @@ export const useTableStore = defineStore('table', {
                         table: 'tables' 
 
                     }, 
-                    payload => {
-                        this.fetchTables();
+                    async payload => {
+                        if(payload.eventType === 'DELETE' || payload.eventType === 'INSERT') {
+                            // fetch all tables again to update the list
+                            await this.fetchTables();
+                        } else {  
+                            try {
+                                const tableUpdated = await this.fetchTableById(payload.new.id);
+                                this.tables = this.tables.map(table =>
+                                    table.id === tableUpdated.id ? tableUpdated : table
+                                );
+                                // update the current table if it matches the updated table
+                                if (this.currentTable?.id === tableUpdated.id) {
+                                    this.currentTable = tableUpdated;
+                                }
+                            } catch (error) {
+                                console.error('Error updating table for table change:', error);
+                            }
+                        }
                     }
                 )
                 .subscribe();
@@ -161,17 +177,22 @@ export const useTableStore = defineStore('table', {
                         schema: 'public', 
                         table: 'carts' }, 
                     async payload => {
-                        try {
-                            const tableUpdated = await this.fetchTableById(payload.new.table_id);
-                            this.tables = this.tables.map(table =>
-                                table.id === tableUpdated.id ? tableUpdated : table
-                            );
-                            // update the current table if it matches the updated table
-                            if (this.currentTable?.id === tableUpdated.id) {
-                                this.currentTable = tableUpdated;
+                        if(payload.eventType === 'DELETE' || payload.eventType === 'INSERT') {
+                            // fetch all tables again to update the list
+                            await this.fetchTables();
+                        } else {
+                            try {
+                                const tableUpdated = await this.fetchTableById(payload.new.table_id);
+                                this.tables = this.tables.map(table =>
+                                    table.id === tableUpdated.id ? tableUpdated : table
+                                );
+                                // update the current table if it matches the updated table
+                                if (this.currentTable?.id === tableUpdated.id) {
+                                    this.currentTable = tableUpdated;
+                                }
+                            } catch (error) {
+                                console.error('Error updating table for cart change:', error);
                             }
-                        } catch (error) {
-                            console.error('Error updating table for cart change:', error);
                         }
                     }
                 )

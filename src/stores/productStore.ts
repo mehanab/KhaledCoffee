@@ -6,6 +6,31 @@ export const useProductStore = defineStore('product', {
         products: [] as any[],
     }),
     actions: {
+        async subscribeToProducts() {
+            const subscription = supabase
+                .channel('products')
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'products' },
+                    
+                    async payload => {
+                        console.log('Product change payload:', payload);
+                        if(payload.eventType === 'DELETE' || payload.eventType === 'INSERT') {
+                            // fetch all products again to update the list
+                            await this.fetchProducts();
+                        } else {
+                            try {
+                                const productUpdated = await this.fetchProductById(payload.new.id);
+                                this.products = this.products.map(p => p.id == productUpdated.id ? productUpdated : p)
+                            } catch (error) {
+                                console.error('Error updating product for product change:', error);
+                            }
+                        }
+                    }
+                )
+                .subscribe();
+            return subscription;
+        },
         async fetchProducts() {
             try {
                 const { data, error } = await supabase
