@@ -140,7 +140,7 @@
                         label-placement="floating"
                         type="number" 
                         min="0" 
-                        step="0.01"
+                        step="1"
                         v-model="productStock"
                         helper-text="Le stock du produit"
                         error-text="Le stock doit être un nombre positif"
@@ -245,11 +245,12 @@
     const productStore = useProductStore();
     const tableStore = useTableStore();
 
-    const products = computed(() => productStore.products);
+    const { products } = storeToRefs(productStore);
     const categoryStore = useCategoryStore();
+    const { categories } = storeToRefs(categoryStore);
     const allCategories = computed(function() {
         // add key count_products to each category based on the products in the store
-        return categoryStore.categories.sort((a, b) => a.name.localeCompare(b.name)).map(category => {
+        return categories.value.sort((a, b) => a.name.localeCompare(b.name)).map(category => {
             const productsCount = products.value.filter(product => product.category_id === category.id).length;
             return {
                 ...category,
