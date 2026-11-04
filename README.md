@@ -37,3 +37,11 @@ MIT
 
 ## Contact
 Pour toute question ou suggestion, veuillez nous contacter.
+
+## Génerer les asset (image PWA)
+
+configuration de l'image logo dans le package.json
+```
+npm run generate-pwa-assets
+```
+
