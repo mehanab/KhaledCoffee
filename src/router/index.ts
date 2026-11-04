@@ -6,6 +6,11 @@ import Tabs from '../components/Tabs.vue'
 
 const routes: Array<RouteRecordRaw> = [
 	{
+		path: '/auth/confirm',
+		name: 'auth-confirm',
+		component: () => import('../views/AuthConfirmPage.vue')
+	},
+	{
 		path: '/',
 		redirect: 'home',
 		meta: {
@@ -75,6 +80,9 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+	if (to.path === '/auth/confirm') {
+		return next()
+	}
 	const auth = useAuthStore()
 	// attendre que l'auth soit prête
 	if (!auth.isReady) {
