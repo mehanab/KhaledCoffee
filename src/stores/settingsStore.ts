@@ -19,12 +19,12 @@ export const useSettingsStore = defineStore('settings', {
             this.settings = data;
         }, 
         async fetchSettingByKey(key: string) {
-            const { data, error } = await supabase.from('settings').eq('key', key).select('*');
+            const { data, error } = await supabase.from('settings').select('*').eq('key', key);
             if (error) throw error;
             this.settings = data;
         },
         async updateSettingByKey(key: string, value: any) {
-            const { data, error } = await supabase.from('settings').update({ value }).eq('key', key).select('*').single();
+            const { data, error } = await supabase.from('settings').update({ value }).select('*').eq('key', key).single();
             if (error) throw error;
             this.settings = this.settings.map(s => s.key === key ? data : s);
         },

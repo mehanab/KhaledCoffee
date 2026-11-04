@@ -7,10 +7,17 @@ interface CartItem {
     cart_id: number;
     product_id: number;
     quantity: number;
+    product_name: string;
+    category_name: string;
+    product_unit_price: number;
+    total_price: number;
+    product_image_path: string;
     product: {
         id: number;
         name: string;
-        price: number;
+        unit_price: number;
+        image_path: string;
+        stock: number;
     };
 }
 

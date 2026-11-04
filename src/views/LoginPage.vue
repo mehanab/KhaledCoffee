@@ -11,7 +11,7 @@
         <h1>Khaled Coffee</h1>
         <p>Se connecter via le lien magique envoyé à votre email</p>
       </div>
-      <ion-list inset="true">
+      <ion-list :inset="true">
         <form @submit.prevent="handleLogin">
           <ion-item>
             <ion-input
