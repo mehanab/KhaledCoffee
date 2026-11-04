@@ -26,7 +26,7 @@ ion-content {
 }
 
 .summary-grid, ion-item, ion-item-options {
-    margin: 12px 0;
+    margin: 12px 0 0 0;
     border: 1px solid #333539;
     border-radius: 10px;
     background: #111214;
@@ -37,7 +37,7 @@ ion-item-options {
     border: none;
 }
 ion-item-option {
-    margin: 0 0 24px 0;
+    margin: 0 0 12px 0;
     border: 1px solid #333539;
     border-radius: 10px;
  }
