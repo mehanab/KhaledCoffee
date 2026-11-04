@@ -23,6 +23,16 @@
               type="email"
             ></ion-input>
           </ion-item>
+          <ion-item>
+            <ion-input
+              v-model="password"
+              label="Mot de passe"
+              label-placement="stacked"
+              name="password"
+              autocomplete="current-password"
+              type="password"
+            ></ion-input>
+          </ion-item>
           <div class="ion-text-center">
             <ion-button type="submit" fill="clear">Se connecter</ion-button>
           </div>
@@ -54,6 +64,7 @@ import { useRouter } from 'vue-router';
 const auth = useAuthStore()
 const router = useRouter()
 const email = ref('');
+const password = ref('');
 
 const handleLogin = async () => {
   const loader = await loadingController.create({});
@@ -61,17 +72,21 @@ const handleLogin = async () => {
 
   try {
     await loader.present();
-    const { error } = await supabase.auth.signInWithOtp({ 
-        email: email.value,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/confirm`
-        }
-    });
+    // const { error } = await supabase.auth.signInWithOtp({ 
+    //     email: email.value,
+    //     options: {
+    //       emailRedirectTo: `${window.location.origin}/auth/confirm`
+    //     }
+    // });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: password.value
+    })
 
     if (error) throw error;
 
-    toast.message = 'Vérifiez votre email pour vous connecter';
-    await toast.present();
+    //toast.message = 'Vérifiez votre email pour vous connecter';
+    router.push('/home');
   } catch (error: any) {
     toast.message = error.error_description || error.message;
     await toast.present();
