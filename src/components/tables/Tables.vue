@@ -41,7 +41,7 @@
 								</ion-text>
 							</ion-label>
 							<ion-text v-if="table.cart" color="primary" class="ion-margin ion-text-end">
-								<ion-text color="secondary">{{ parseFloat(table.cart?.total || '0').toFixed(2) }} {{ currency }}</ion-text>
+								<ion-text color="secondary">{{ Number(table.cart?.total || 0).toFixed(2) }} {{ currency }}</ion-text>
 								<p>{{ getElapsed(table.cart.created_at, now) }}</p>
 							</ion-text>
 						</ion-item>

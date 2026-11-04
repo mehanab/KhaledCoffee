@@ -30,12 +30,23 @@ interface Cart {
     total: number;
     created_at: string;
     carts_items: CartItem[];
+    user?: { first_name?: string; last_name?: string };
 }
+
+export interface Table {
+    id: number;
+    created_at: string;
+    number: number;
+    status: string;
+    location: string;
+    cart?: Cart;
+}
+
 
 export const useTableStore = defineStore('table', {
     state: () => ({
-        tables: [] as {id: number, created_at: string, number: number, status: string, location: string, cart?: Cart}[],
-        currentTable: null as {id: number, created_at: string, number: number, status: string, location: string, cart?: Cart} | null,
+        tables: [] as Table[],
+        currentTable: null as Table | null,
     }),
     actions: {
         async subscribeToTables() {

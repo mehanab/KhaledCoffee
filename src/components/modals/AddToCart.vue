@@ -31,14 +31,14 @@
                         <ion-item-divider>
                             <ion-label> {{ category }}</ion-label>
                         </ion-item-divider>
-                        <ion-item v-for="(product, index) in products" :key="product.id" :lines="index === products.length - 1 ? 'none' : 'default'">
+                        <ion-item v-for="(product, index) in products" :key="product.id" :lines="index === products.length - 1 ? 'none' : 'full'">
                             <ion-avatar slot="start">
                                 <img v-if="product.image_path" :src="product.image_path" />
                                 <ion-icon v-else :icon="image" size="large"></ion-icon>
                             </ion-avatar>
                             <ion-label>
                                 {{ product.name }}
-                                <p>{{ parseFloat(product.unit_price).toFixed(2) }} {{ currency }} - Qté restante: {{ product.stock }}</p>
+                                <p>{{ Number(product.unit_price).toFixed(2) }} {{ currency }} - Qté restante: {{ product.stock }}</p>
                             </ion-label>
                             <ion-button v-if="!currentTable.cart?.carts_items?.find((item: any) => item.product_id === product.id)" fill="clear" size="small" slot="end" @click="upsertCartItem(product, getProductQuantityInCart(product.id) + 1)" :disabled="product.stock <= 0 || addingProduct === product.id">
                                 <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
@@ -56,8 +56,8 @@
 <script setup lang="ts">
     import { IonHeader, IonToolbar, IonButtons, IonTitle, IonContent, IonButton, IonModal, IonSearchbar, IonChip, IonLabel, IonCard, IonCardHeader, IonIcon, IonAvatar, IonItem, IonList, IonItemGroup, IonItemDivider, IonSegment, IonSegmentButton } from '@ionic/vue';
     import { image, addCircleOutline } from 'ionicons/icons';
-    import { ref, onMounted, computed } from 'vue';
-    import { useTableStore } from '../../stores/tableStore';
+    import { ref, onMounted, computed, type PropType } from 'vue';
+    import { useTableStore, type Table } from '../../stores/tableStore';
     import { useProductStore } from '../../stores/productStore';
     import { useSettingsStore } from '@/stores/settingsStore';
     import { storeToRefs } from 'pinia';
@@ -72,23 +72,23 @@
     
     const props = defineProps({
         table: {
-            type: Object,
+            type: Object as PropType<Table>,
             required: true
         }
     });
 
     tableStore.currentTable = props.table;
-    const currentTable = computed(() => tableStore.currentTable);
+    const currentTable = computed(() => tableStore.currentTable as Table);
 
     const groupedByCategory = computed(() => {
-        return products.value.reduce((acc, product) => {
+        return products.value.reduce((acc: Record<string, any[]>, product: any) => {
             const categoryName = product.category ? product.category.name : 'Uncategorized';
             if (!acc[categoryName]) {
                 acc[categoryName] = [];
             }
             acc[categoryName].push(product);
             return acc;
-        }, {});
+        }, {} as Record<string, any[]>);
     });
 
     const searchTerm = ref('');
@@ -98,12 +98,12 @@
         const selectedCat = selectedCategory.value;
 
         if (!term && selectedCat === 'all') {
-            return Object.keys(groupedByCategory.value).sort().reduce((acc, category) => {
+            return Object.keys(groupedByCategory.value).sort().reduce((acc: Record<string, any[]>, category) => {
                 acc[category] = groupedByCategory.value[category];
                 return acc;
-            }, {});
+            }, {} as Record<string, any[]>);
         } else if (term && selectedCat === 'all') {
-            return Object.keys(groupedByCategory.value).reduce((acc, category) => {
+            return Object.keys(groupedByCategory.value).reduce((acc: Record<string, any[]>, category) => {
                 const filteredProducts = groupedByCategory.value[category].filter((product: any) =>
                     product.name.toLowerCase().includes(term)
                 );
@@ -113,7 +113,7 @@
                 }
 
                 return acc;
-            }, {});
+            }, {} as Record<string, any[]>);
         } else if (!term && selectedCat !== 'all') {
             return {
                 [selectedCat]: groupedByCategory.value[selectedCat] || []
@@ -163,7 +163,7 @@
             const data = await tableStore.upsertCartItem(currentTable.value?.cart, product, quantity);
             // Update the local cart data in the table store
             console.log('Upserted cart item data:', data);
-            tableStore.currentTable.cart = data;
+            if (tableStore.currentTable) tableStore.currentTable.cart = data;
 
         } catch (error) {
             console.error('Error upserting cart item:', error);

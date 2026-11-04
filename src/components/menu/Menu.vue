@@ -21,7 +21,7 @@
                                     <ion-label> {{ category }}</ion-label>
                                 </ion-item-divider>
                                 <ion-item-sliding v-for="(product, index) in products" :key="product.id">
-                                    <ion-item :lines="index === products.length - 1 ? 'none' : 'default'">
+                                    <ion-item :lines="index === products.length - 1 ? 'none' : 'full'">
                                         <ion-avatar slot="start">
                                             <img v-if="product.image_path" :src="product.image_path" />
                                             <ion-icon v-else :icon="image" size="large"></ion-icon>

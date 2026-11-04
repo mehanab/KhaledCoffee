@@ -44,7 +44,7 @@
                         </ion-text>
 
                         <ion-text>
-                            <h2>{{ currentTable.cart ? parseFloat(currentTable.cart?.total).toFixed(2) : '0.00' }} {{ currency }}</h2>
+                            <h2>{{ currentTable.cart ? Number(currentTable.cart?.total).toFixed(2) : '0.00' }} {{ currency }}</h2>
                         </ion-text>
                     </ion-col>
                 </ion-row>
@@ -57,7 +57,7 @@
                     </ion-avatar>
                     <ion-label>
                         <h2>{{ item.product_name }}</h2>
-                        <p>{{ parseFloat(item.product_unit_price).toFixed(2) }} {{ currency }}</p>
+                        <p>{{ Number(item.product_unit_price).toFixed(2) }} {{ currency }}</p>
                         <ion-note color="medium">Qté restante: {{ item.product.stock}}</ion-note>
                     </ion-label>
                     <ion-button fill="clear" size="small" @click="updateCartItemQuantity(item, item.quantity - 1)" color="medium" :disabled="updatingQuantity === item.id">
@@ -169,9 +169,9 @@
 import { IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonGrid, IonRow, IonCol, IonIcon, IonItem, IonText, IonButton, IonList, IonLabel, IonInput, IonModal, IonFooter, IonAlert, IonAvatar, IonNote } from '@ionic/vue';
 import { arrowBackOutline, people, add, create, lockClosed, lockOpen, addCircleOutline, removeCircleOutline, image } from 'ionicons/icons';
 import { getElapsed } from '../../utils/functions';
-import { ref, inject, computed, watch } from 'vue';
+import { ref, inject, computed, watch, type PropType } from 'vue';
 
-import { useTableStore } from '../../stores/tableStore';
+import { useTableStore, type Table } from '../../stores/tableStore';
 import { useOrderStore } from '../../stores/orderStore';
 import { useProductStore } from '../../stores/productStore';
 import AddToCart from '../modals/AddToCart.vue';
@@ -187,14 +187,14 @@ const productStore = useProductStore();
 
 const props = defineProps({
     table: {
-        type: Object,
+        type: Object as PropType<Table>,
         required: true
     }
 })
 
 // set the current table in the store when the component is mounted
-tableStore.currentTable = props.table as typeof tableStore.currentTable;
-const currentTable = computed(() => tableStore.currentTable);
+tableStore.currentTable = props.table;
+const currentTable = computed(() => tableStore.currentTable as Table);
 
 const isOpen = ref(false);
 const setOpen = (open: boolean) => (isOpen.value = open);
