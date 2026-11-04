@@ -15,8 +15,9 @@ interface CartItem {
 }
 
 interface Cart {
-    id: number;
+    id: number|undefined;
     table_id: number;
+    guests: number;
     user_id: string;
     libelle: string;
     total: number;
@@ -253,7 +254,7 @@ export const useTableStore = defineStore('table', {
         },
 
         // upsert cart 
-        async upsertCart(cart: { id: number, table_id: number, total: number, guest_count?: number, libelle?: string, user_id?: number }) {
+        async upsertCart(cart: { id: number|undefined, table_id: number, total: number, guest_count?: number, libelle?: string, user_id?: number }) {
             const authStore = useAuthStore();
             cart.user_id = cart.user_id ?? authStore.user?.id ?? null;
             try {

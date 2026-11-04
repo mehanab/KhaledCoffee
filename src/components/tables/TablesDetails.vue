@@ -193,7 +193,7 @@ const props = defineProps({
 })
 
 // set the current table in the store when the component is mounted
-tableStore.currentTable = props.table;
+tableStore.currentTable = props.table as typeof tableStore.currentTable;
 const currentTable = computed(() => tableStore.currentTable);
 
 const isOpen = ref(false);
@@ -220,7 +220,7 @@ const acceptCloseTableButtons = [
         text: 'Confirmer',
         handler: async () => {
             //insert order
-            if (currentTable.value.cart) {
+            if (currentTable?.value?.cart) {
                 try {
                     if(!currentTable.value.cart ) {
                         throw new Error('Cart ID is undefined');
@@ -245,7 +245,10 @@ const acceptCloseTableButtons = [
                     return;
                 }
 
-                tableStore.currentTable.cart = null;
+                
+                if (tableStore.currentTable && tableStore.currentTable.cart) {
+                    tableStore.currentTable.cart = undefined;
+                }
                 await setCurrentTableStatus('available');
             }
             setAcceptCloseTable(false);
@@ -267,10 +270,13 @@ const acceptRemoveCartItemButtons = [
     {
         text: 'Confirmer',
         handler: async () => {
-            if (currentTable.value.cart && currentTable.value.cart.id && cartItemToRemove.value && cartItemToRemove.value != null) {
+            if (currentTable?.value?.cart && currentTable.value.cart.id && cartItemToRemove.value && cartItemToRemove.value != null) {
                 try {
                     console.log('Removing cart item:', cartItemToRemove.value);
-                    tableStore.currentTable.cart = await tableStore.removeCartItem(currentTable.value.cart.id, cartItemToRemove.value.id);
+                    const updatedCart = await tableStore.removeCartItem(currentTable.value.cart.id, cartItemToRemove.value.id);
+                    if (tableStore.currentTable) {
+                        tableStore.currentTable.cart = updatedCart;
+                    }
 
                     // Update the product stock_sold in the products table
                     await productStore.updateProductStock(cartItemToRemove.value.product_id, -cartItemToRemove.value.quantity);
@@ -300,15 +306,22 @@ async function openUpdateTable() {
 
     try {
         // Call the store action to update the table's cart
+        if(!currentTable.value?.id) {
+            console.error('No current table selected');
+            setAlertOpen(true);
+            return;
+        }
         const updatedCart = await tableStore.upsertCart({
             id: currentTable.value.cart ? currentTable.value.cart.id : undefined,
             table_id: currentTable.value.id,
-            total: currentTable.value.cart ? currentTable.value.cart.total : '0',
+            total: currentTable.value.cart ? currentTable.value.cart.total : 0,
             guest_count: cartPeople.value,
             libelle: cartLibelle.value,
         });
         setOpen(false);
-        tableStore.currentTable.cart = updatedCart;
+        if (tableStore.currentTable) {
+            tableStore.currentTable.cart = updatedCart;
+        }
     } catch (error) {
         console.error('Error updating table cart:', error);
         setAlertOpen(true);
@@ -328,10 +341,17 @@ async function setCurrentTableStatus(status: 'available' | 'unavailable') {
 
     try {
     // Call the store action to set the table as unavailable
+        if(!currentTable.value?.id) {
+            console.error('No current table selected');
+            setAlertOpen(true);
+            return;
+        }
         await tableStore.setTableStatus(currentTable.value.id, status);
 
         // Update the table's status locally
-        tableStore.currentTable.status = status;
+        if (tableStore.currentTable) {
+            tableStore.currentTable.status = status;
+        }
         // disable the openTableActivate button
         disableBtns.value = true;
         // navigate back to the tables list
@@ -353,7 +373,7 @@ watch(() => tableStore.currentTable, (table) => {
 const updatingQuantity = ref<number | null>(null);
 const updateCartItemQuantity = async (cartItem: any, quantity: number) => {
     try {
-        if (!currentTable.value.cart) {
+        if (!currentTable.value?.cart) {
             console.error('No cart found for this table');
             return;
         }
@@ -378,7 +398,9 @@ const updateCartItemQuantity = async (cartItem: any, quantity: number) => {
         // Update the cart item quantity in the cart_items table
         const data = await tableStore.updateCartItemQuantity(currentTable.value.cart, cartItem, quantity);
         // Update the local cart data in the table store
-        tableStore.currentTable.cart = data;
+        if (tableStore.currentTable && tableStore.currentTable.cart) {
+            tableStore.currentTable.cart = data;
+        }
 
     } catch (error) {
         console.error('Error upserting cart item:', error);
