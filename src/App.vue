@@ -12,6 +12,7 @@ import { useSettingsStore } from './stores/settingsStore'
 import { useTableStore } from './stores/tableStore'
 import { useProductStore } from './stores/productStore'
 import { useCategoryStore } from './stores/categoryStore'
+import { useOrderStore } from './stores/orderStore'
 // import Tabs from './components/Tabs.vue'
 
 const auth = useAuthStore()
@@ -19,6 +20,7 @@ const params = useSettingsStore()
 const tableStore = useTableStore()
 const productStore = useProductStore()
 const categoryStore = useCategoryStore()
+const orderStore = useOrderStore()
 
 onMounted(async () => {
     auth.init();
@@ -29,5 +31,6 @@ onMounted(async () => {
     tableStore.subscribeToCarts();
     productStore.subscribeToProducts();
     categoryStore.subscribeToProducts();
+    orderStore.subscribeToProducts();
 })
 </script>

@@ -2,14 +2,25 @@ import { defineStore } from 'pinia'
 import { supabase } from '../utils/supabase'
 import { useAuthStore } from './auth';
 
-const authStore = useAuthStore();
-
 export const useOrderStore = defineStore('order', {
     state: () => ({
         orders: [] as any[],
         currentOrder: null as any,
     }),
     actions: {
+        async subscribeToProducts() {
+            const subscription = supabase
+                .channel('orders')
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'orders' },
+                    (payload) => {
+                        this.fetchOrders();
+                        console.log('Order change received:', payload);
+                    }
+                )
+                .subscribe();
+        },
         async fetchOrders() {
             try {
                 const { data, error } = await supabase
@@ -73,7 +84,7 @@ export const useOrderStore = defineStore('order', {
         },
 
         async createOrder(cart: any) {
-            
+            const authStore = useAuthStore();
             const order = { 
                 table_id: cart.table_id, 
                 guests: cart.guests, 

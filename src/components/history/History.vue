@@ -62,13 +62,47 @@
             <p class="history-message">Aucune commande pour cette période.</p>
         </ion-text>
 
-        <div v-else class="orders-list">
-            <button
+        <ion-item
+            v-else
+            v-for="order in filteredOrders"
+            :key="order.id"
+            type="button"
+            @click="openOrder(order)"
+            class="ion-display-flex ion-hide-print"
+        >
+            <ion-text color="medium">
+                {{ formatTime(order.created_at) }}
+            </ion-text>
+
+            <ion-label class="ion-margin-start">
+                <h2>
+                    <ion-icon :icon="restaurantOutline" />
+                    Table {{ getTableName(order) }}
+                </h2>
+
+                <p>
+                    <ion-icon :icon="personOutline" />
+                    {{ getServerName(order) }}
+                </p>
+            </ion-label>
+
+            <ion-note slot="end">
+                {{ getItemCount(order) }} articles
+            </ion-note>
+
+            <ion-label slot="end" class="ion-text-end">
+                <h2>{{ formatAmount(order.total) }}</h2>
+                <p>{{ getStatusLabel(order) }}</p>
+            </ion-label>
+        </ion-item>
+
+        <!-- Version dédiée à l'impression -->
+        <div class="orders-list ion-hide-screen orders-grid">
+            <div
                 v-for="order in filteredOrders"
                 :key="order.id"
                 class="order-card"
                 type="button"
-                @click="openOrder(order)"
             >
                 <span class="order-time">{{ formatTime(order.created_at) }}</span>
                 <span class="order-details">
@@ -87,7 +121,7 @@
                     <span class="order-status">{{ getStatusLabel(order) }}</span>
                 </span>
                 <ion-icon class="order-chevron" :icon="chevronForwardOutline" />
-            </button>
+            </div>
         </div>
 
         <ion-button
@@ -153,7 +187,7 @@
             </ion-content>
         </ion-modal>
 
-        <ion-modal :is-open="Boolean(activeOrder)" @didDismiss="activeOrder = null">
+        <ion-modal :is-open="Boolean(activeOrder)" @didDismiss="activeOrder = null" class="detail-order-modal">
             <ion-header>
                 <ion-toolbar>
                     <ion-title>Commande #{{ activeOrder?.id }}</ion-title>
@@ -163,22 +197,51 @@
                 </ion-toolbar>
             </ion-header>
             <ion-content v-if="activeOrder" class="ion-padding">
-                <p>Table {{ getTableName(activeOrder) }} · {{ formatDateTime(activeOrder.created_at) }}</p>
-                <p>Serveur : {{ getServerName(activeOrder) }}</p>
-                <ion-list>
-                    <ion-item v-for="(item, index) in activeOrder.order_items ?? []" :key="item.id ?? index">
-                        <ion-label>
-                            <h2>{{ item.product_name }}</h2>
-                            <p>{{ item.quantity }} × {{ formatAmount(item.product_unit_price) }}</p>
-                        </ion-label>
-                        <ion-text slot="end">{{ formatAmount(item.total_price) }}</ion-text>
-                    </ion-item>
-                    <ion-item>
-                        <ion-label><strong>Total</strong></ion-label>
-                        <ion-text slot="end"><strong>{{ formatAmount(activeOrder.total) }}</strong></ion-text>
-                    </ion-item>
-                </ion-list>
+                <div class="ion-modal-hide-print">
+                    <p>Table {{ getTableName(activeOrder) }} · {{ formatDateTime(activeOrder.created_at) }}</p>
+                    <p>Serveur : {{ getServerName(activeOrder) }}</p>
+                    <ion-list>
+                        <ion-item v-for="(item, index) in activeOrder.order_items ?? []" :key="item.id ?? index">
+                            <ion-label>
+                                <h2>{{ item.product_name }}</h2>
+                                <p>{{ item.quantity }} × {{ formatAmount(item.product_unit_price) }}</p>
+                            </ion-label>
+                            <ion-text slot="end">{{ formatAmount(item.total_price) }}</ion-text>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label><strong>Total</strong></ion-label>
+                            <ion-text slot="end"><strong>{{ formatAmount(activeOrder.total) }}</strong></ion-text>
+                        </ion-item>
+                    </ion-list>
+                </div>
+                  <!-- Version dédiée à l'impression -->
+                <div class="orders-list ion-modal-hide-screen">
+                    <h2>Commande #{{ activeOrder?.id }}</h2>
+                    <div
+                        v-for="order in filteredOrders"
+                        :key="order.id"
+                    >
+                        <p>Table {{ getTableName(order) }} · {{ formatDateTime(order.created_at) }}</p>
+                        <p>Serveur : {{ getServerName(order) }}</p>
+                        <ul>
+                            <li v-for="(item, index) in order.order_items ?? []" :key="item.id ?? index">
+                                {{ item.quantity }} × {{ item.product_name }} - {{ formatAmount(item.total_price) }}
+                            </li>
+                        </ul>
+                        <p><strong>Total : {{ formatAmount(order.total) }}</strong></p>
+                    </div>
+                </div>
+                <ion-button
+                    expand="block"
+                    fill="outline"
+                    class="export-button"
+                    @click="exportPdf('modal')"
+                >
+                    <ion-icon slot="start" :icon="documentTextOutline" />
+                    Exporter PDF
+                </ion-button>
             </ion-content>
+            
         </ion-modal>
     </ion-content>
 </template>
@@ -207,6 +270,7 @@ import {
     IonText,
     IonTitle,
     IonToolbar,
+    IonNote
 } from '@ionic/vue';
 import { useRoute } from 'vue-router';
 import {
@@ -429,8 +493,21 @@ function resetFilters() {
     searchTerm.value = '';
 }
 
-function exportPdf() {
-    window.print();
+function exportPdf(context?: string) {
+    if(context === 'modal') {
+        const ordersGrid = document.querySelector('.orders-grid');
+        if (ordersGrid) {
+            ordersGrid.classList.remove('ion-hide-screen');
+            ordersGrid.classList.add('ion-hide-print');
+            window.print();
+            ordersGrid.classList.remove('ion-hide-print');
+            ordersGrid.classList.add('ion-hide-screen');
+        } else {
+            window.print();
+        }
+    } else {
+        window.print();
+    }
 }
 </script>
 
@@ -628,6 +705,30 @@ ion-segment-button {
 
 .filters-modal {
     --border-radius: 16px 16px 0 0;
+}
+
+@media screen {
+    .ion-hide-screen {
+        display: none;
+    }
+    .ion-modal-hide-screen {
+        display: none;
+    }
+}
+
+@media print {
+    .ion-hide-print {
+        display: none !important;
+    }
+    .ion-modal-hide-print {
+        display: none !important;
+    }
+    .ion-hide-screen {
+        display: block !important;
+    }
+    .ion-modal-hide-screen {
+        display: block !important;
+    }
 }
 
 @media (max-width: 390px) {
