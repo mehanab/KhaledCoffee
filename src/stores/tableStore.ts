@@ -128,7 +128,7 @@ export const useTableStore = defineStore('table', {
             try {
                 const { data, error } = await supabase
                     .from('tables')
-                    .select(`*, carts (*, carts_items (*, product:products (*)))`)
+                    .select(`*,  carts (*, user:profiles (*), carts_items (*, product:products (*)))`)
                     .eq('id', tableId)
                     .single();
 
@@ -279,7 +279,7 @@ export const useTableStore = defineStore('table', {
                 const { data, error } = await supabase
                     .from('carts')
                     .upsert({ id: cart.id, table_id: cart.table_id, total: cart.total, guests: cart.guest_count, libelle: cart.libelle, user_id: cart.user_id }, { onConflict: 'id' })
-                    .select('*, carts_items (*, product:products (*))')
+                    .select('*, user:profiles (*), carts_items (*, product:products (*))')
                     .single();
 
                 if (error) throw error;

@@ -68,18 +68,19 @@
                         <ion-icon :icon="addCircleOutline" size="large"></ion-icon>
                     </ion-button>
                 </ion-item>
+                <ion-button expand="block" color="medium" type="button" class="ion-margin-top" fill="outline" :disabled="!currentTable.cart" id="open-modal">
+                    <ion-icon :icon="add"></ion-icon>
+                    <ion-text class="ion-padding-start">Ajouter des articles</ion-text>
+                </ion-button>
+                <ion-item lines="none"></ion-item>
             </ion-list>
-             <ion-button expand="block" color="medium" type="button" class="ion-margin-top" fill="outline" :disabled="!currentTable.cart" id="open-modal">
-                <ion-icon :icon="add"></ion-icon>
-                <ion-text class="ion-padding-start">Ajouter des articles</ion-text>
-            </ion-button>
             <add-to-cart :table="currentTable"></add-to-cart>
             
             <ion-footer class="ion-display-flex ion-justify-content-center " :translucent="true" style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: black;">
                 <!-- if table is opened show close button else show open button -->
                 <ion-button v-if="currentTable.cart" color="light" fill="solid" size="large" expand="block" class="ion-flex-grow-1" @click="setOpen(true)">
                     <ion-icon :icon="create" slot="start"></ion-icon>
-                    <ion-text>modifier</ion-text>
+                    <ion-text>Modifier</ion-text>
                 </ion-button>
                 <ion-button v-if="currentTable.cart" fill="solid" size="large" expand="block" @click="setAcceptCloseTable(true)" class="detail-table-close-btn ion-flex-grow-1">
                     <ion-icon :icon="lockClosed" slot="start" color="danger"></ion-icon>
