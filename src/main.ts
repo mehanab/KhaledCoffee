@@ -28,13 +28,13 @@ import '@ionic/vue/css/display.css';
  * https://ionicframework.com/docs/theming/dark-mode
  */
 
-/* @import '@ionic/vue/css/palettes/dark.always.css'; */
+import '@ionic/vue/css/palettes/dark.always.css';
 /* @import '@ionic/vue/css/palettes/dark.class.css'; */
-import '@ionic/vue/css/palettes/dark.system.css';
+// import '@ionic/vue/css/palettes/dark.system.css';
 
 /* Theme variables */
-import './theme/variables.css';
 import './theme/app.css';
+import './theme/variables.css';
 
 const pinia = createPinia()
 const app = createApp(App)

@@ -2,7 +2,7 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Login</ion-title>
+        <ion-title>Connexion</ion-title>
       </ion-toolbar>
     </ion-header>
 

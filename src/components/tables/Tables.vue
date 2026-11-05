@@ -4,13 +4,13 @@
 		</ion-header>
 		<ion-content :fullscreen="true">
 
-			<ion-card color="base" :bordered="false">
+			<ion-card color="base" :bordered="false" class="ion-no-padding ion-no-marging">
 				<ion-card-header>
 					<ion-card-subtitle></ion-card-subtitle>
 					<ion-card-title><ion-text color="medium">Bonjour </ion-text>{{ auth.user && auth.user?.profile?.full_name ? auth.user?.profile?.full_name : auth.user?.email }}</ion-card-title>
 				</ion-card-header>
 				<ion-card-content class="tables ion-no-padding">
-					<div class="ion-display-flex ion-justify-content-between ion-align-items-center">
+					<div class="ion-display-flex ion-justify-content-between ion-align-items-center ion-padding-top">
 						<div class="tables-header ">
 							<ion-label slot="end">Tables ouvertes</ion-label>
 							<ion-badge class="ion-margin outline-badge">
@@ -24,30 +24,17 @@
 					</div>
 					<p v-if="error">Erreur de chargement des tables : {{ error.message }}</p>
 
-					<ion-nav-link v-if="openedTables.length" v-for="table in openedTables" :key="table.id" router-direction="forward" :component="tablesDetails" :component-props="{ table: table }">
-						<ion-item :button="true" class="ion-display-flex table opened" lines="none" color="none">
-							<ion-thumbnail  slot="start">
-								<img src="/table.svg"/>
-							</ion-thumbnail>
-							<ion-label color="primary" class="ion-text-start ion-display-flex table-label">
-								<h2 class="table-number ion-align-self-center">{{ table.number }}</h2>
-								<ion-text v-if="table.cart" color="medium" class="table-text">
-									<h3><strong><ion-text color="secondary">{{ table.cart.libelle }}</ion-text></strong></h3>
-									<ion-text class="ion-display-inline-flex ion-align-items-center">
-										<ion-icon :icon="peopleOutline" class="ion-margin-end bold-icon"></ion-icon>
-										{{ table.cart.guests }} personnes
-									</ion-text>
-									<p>Ouverte {{ new Date(table.cart.created_at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) }}</p>
-								</ion-text>
-							</ion-label>
-							<ion-text v-if="table.cart" color="primary" class="ion-margin ion-text-end">
-								<ion-text color="secondary">{{ Number(table.cart?.total || 0).toFixed(2) }} {{ currency }}</ion-text>
-								<p>{{ getElapsed(table.cart.created_at, now) }}</p>
-							</ion-text>
-						</ion-item>
+					<ion-nav-link v-if="openedTables.length" v-for="table in openedTables" :key="table.id" router-direction="forward" :component="tablesDetails" :component-props="{ table: table }" class="ion-no-padding ion-no-marging">
+					  <TableItem
+							:key="table.id"
+							:table="table"
+							:currency="currency"
+							:now="now"
+							:get-elapsed="getElapsed"
+						/>
 					</ion-nav-link>
 
-					<div class="ion-display-flex ion-justify-content-between ion-align-items-center">
+					<div class="ion-display-flex ion-justify-content-between ion-align-items-center ion-padding-top">
 						<div class="tables-header ">
 							<ion-label slot="end">Tables disponibles</ion-label>
 							<ion-badge class="ion-margin outline-badge">
@@ -56,27 +43,16 @@
 						</div>
 					</div>
 					<ion-nav-link v-if="closedTables.length" v-for="table in closedTables" :key="table.id" router-direction="forward" :component="tablesDetails" :component-props="{ table: table }">
-							<ion-item :button="true" class="ion-display-flex table closed" lines="none" color="base">
-								<ion-thumbnail slot="start">
-									<img src="/table.svg" />
-								</ion-thumbnail>
-								<ion-label color="primary" class="ion-text-start ion-display-flex table-label">
-									<h2 class="table-number ion-align-self-center">{{ table.number }}</h2>
-									<ion-text color="medium" class="table-text">
-										<ion-text class="ion-display-inline-flex ion-align-items-center">
-											<ion-icon :icon="peopleOutline" class="ion-margin-end bold-icon"></ion-icon>
-											0 personnes
-										</ion-text>
-										<p><ion-text color="primary">Disponible</ion-text></p>
-									</ion-text>
-								</ion-label>
-								<ion-text color="primary" class="ion-margin ion-text-end">
-									<ion-text color="medium">0.00 {{ currency }}</ion-text>
-								</ion-text>
-							</ion-item>
+						<TableItem
+							:key="table.id"
+							:table="table"
+							:currency="currency"
+							:now="now"
+							:get-elapsed="getElapsed"
+						/>
 					</ion-nav-link>
 
-					<div class="ion-display-flex ion-justify-content-between ion-align-items-center">
+					<div class="ion-display-flex ion-justify-content-between ion-align-items-center ion-padding-top">
 						<div class="tables-header ">
 							<ion-label slot="end">Tables indisponibles</ion-label>
 							<ion-badge class="ion-margin outline-badge">
@@ -85,24 +61,13 @@
 						</div>
 					</div>
 					<ion-item-sliding v-if="unavailableTables.length" v-for="table in unavailableTables" :key="table.id" class="table">
-						<ion-item :button="true" :disabled="table.status === 'unavailable'" class="ion-display-flex unavailable" lines="none" color="base">
-							<ion-thumbnail slot="start">
-								<img src="/table.svg" />
-							</ion-thumbnail>
-							<ion-label color="primary" class="ion-text-start ion-display-flex table-label">
-								<h2 class="table-number ion-align-self-center">{{ table.number }}</h2>
-								<ion-text color="medium" class="table-text">
-									<ion-text class="ion-display-inline-flex ion-align-items-center">
-										<ion-icon :icon="peopleOutline" class="ion-margin-end bold-icon"></ion-icon>
-										0 personnes
-									</ion-text>
-									<p><ion-text color="danger">Indisponible</ion-text></p>
-								</ion-text>
-							</ion-label>
-							<ion-text color="primary" class="ion-margin ion-text-end">
-								<ion-text color="medium">0.00 {{ currency }}</ion-text>
-							</ion-text>
-						</ion-item>
+						<TableItem
+							:key="table.id"
+							:table="table"
+							:currency="currency"
+							:now="now"
+							:get-elapsed="getElapsed"
+						/>
 						<ion-item-options slot="end">
 							<ion-item-option color="success" @click="setTableStatus(table.id, 'available')">
 								<ion-icon slot="icon-only" :icon="flash"></ion-icon>
@@ -178,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, IonIcon, IonNavLink, IonButtons, IonLabel, IonFab, IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonThumbnail, IonText, IonModal, IonInput, IonSelect, IonSelectOption, IonItemSliding, IonItemOptions, IonItemOption, IonAlert } from '@ionic/vue';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, IonIcon, IonNavLink, IonButtons, IonLabel, IonFab, IonBadge, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonThumbnail, IonText, IonModal, IonInput, IonSelect, IonSelectOption, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonCol } from '@ionic/vue';
 import { add, peopleOutline, timeOutline, checkmarkOutline, flash, settings } from 'ionicons/icons';
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, ref, markRaw, computed, onUnmounted } from 'vue';
@@ -188,6 +153,7 @@ import Toolbar from '../Toolbar.vue';
 import { useTableStore } from '../../stores/tableStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { storeToRefs } from 'pinia';
+import TableItem from '@/components/tables/TableItem.vue'
 const settingsStore = useSettingsStore();
 const { appName, currency } = storeToRefs(settingsStore)
 
