@@ -49,8 +49,8 @@
                     </ion-col>
                 </ion-row>
             </ion-grid>
-            <ion-list v-if="currentTable.cart?.carts_items && currentTable.cart.carts_items.length > 0">
-                <ion-item v-for="(item, index) in (currentTable.cart?.carts_items || []).sort((a: any, b: any) => a.product_name.localeCompare(b.product_name))" :key="index" :lines="index === (currentTable.cart?.carts_items || []).length - 1 ? 'none' : 'full'">
+            <ion-list>
+                <ion-item v-if="currentTable.cart?.carts_items && currentTable.cart.carts_items.length > 0" v-for="(item, index) in (currentTable.cart?.carts_items || []).sort((a: any, b: any) => a.product_name.localeCompare(b.product_name))" :key="index" :lines="index === (currentTable.cart?.carts_items || []).length - 1 ? 'none' : 'full'">
                      <ion-avatar slot="start">
                         <img v-if="item.product_image_path" :src="item.product_image_path" />
                         <ion-icon v-else :icon="image" size="large"></ion-icon>
@@ -72,7 +72,7 @@
                     <ion-icon :icon="add"></ion-icon>
                     <ion-text class="ion-padding-start">Ajouter des articles</ion-text>
                 </ion-button>
-                <ion-item lines="none"></ion-item>
+                <ion-item lines="none" class="item-invisible"></ion-item>
             </ion-list>
             <add-to-cart :table="currentTable"></add-to-cart>
             
@@ -412,6 +412,11 @@ const updateCartItemQuantity = async (cartItem: any, quantity: number) => {
 </script>
 
 <style scoped>
+
+.item-invisible {
+    visibility: hidden;
+}
+
 .first-row {
     background-color: rgb(27, 27, 27);
     border-radius: 10px;
