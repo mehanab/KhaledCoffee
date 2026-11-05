@@ -24,29 +24,29 @@ export default defineConfig({
       ],
 
       manifest: {
-      name: 'Khaled Coffee',
-      short_name: 'Khaled Coffee',
-      theme_color: '#1d1919',
-      background_color: '#1d1919',
-      display: 'standalone',
-          icons: [
-              {
-                  src: 'pwa-192x192.png',
-                  sizes: '192x192',
-                  type: 'image/png'
-              },
-              {
-                  src: 'pwa-512x512.png',
-                  sizes: '512x512',
-                  type: 'image/png'
-              },
-              {
-                  src: 'maskable-icon-512x512.png',
-                  sizes: '512x512',
-                  type: 'image/png',
-                  purpose: 'maskable'
-              }
-          ]
+        name: 'Khaled Coffee',
+        short_name: 'Khaled Coffee',
+        theme_color: '#1d1919',
+        background_color: '#1d1919',
+        display: 'standalone',
+        icons: [
+            {
+                src: 'pwa-192x192.png',
+                sizes: '192x192',
+                type: 'image/png'
+            },
+            {
+                src: 'pwa-512x512.png',
+                sizes: '512x512',
+                type: 'image/png'
+            },
+            {
+                src: 'maskable-icon-512x512.png',
+                sizes: '512x512',
+                type: 'image/png',
+                purpose: 'maskable'
+            }
+        ]
       },
       workbox: {
         clientsClaim: true,

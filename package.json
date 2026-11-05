@@ -10,7 +10,7 @@
     "test:e2e": "cypress run",
     "test:unit": "vitest",
     "lint": "eslint .",
-    "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/logo.png",
+    "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/logo-pwa.png",
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
