@@ -9,7 +9,6 @@
 					<ion-card-subtitle></ion-card-subtitle>
 					<ion-card-title><ion-text color="medium">Bonjour </ion-text>{{ auth.user && auth.user?.profile?.full_name ? auth.user?.profile?.full_name : auth.user?.email }}</ion-card-title>
 				</ion-card-header>
-				<ion-card-content class="tables ion-no-padding">
 					<div class="ion-display-flex ion-justify-content-between ion-align-items-center ion-padding-top">
 						<div class="tables-header ">
 							<ion-label slot="end">Tables ouvertes</ion-label>
@@ -74,7 +73,6 @@
 							</ion-item-option>
 						</ion-item-options>
 					</ion-item-sliding>
-				</ion-card-content>
 			</ion-card>
 			<ion-fab vertical="bottom" horizontal="end" slot="fixed">
 				<ion-button  @click="setOpen(true)" class="btn-add-table">
@@ -250,84 +248,3 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
-/**#container {
-  text-align: center;
-  
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-**/
-
-.btn-add-table {
-	--border-radius: 50%;
-	--padding-start: 1em;
-	--padding-end: 1em;
-	--padding-top: 1em;
-	--padding-bottom: 1em;
-}
-
-ion-thumbnail {
-	--size: 3em;
-	margin: 0 1em 0 0;
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-  
-  color: #8c8c8c;
-  
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
-
-.tables-header {
-	display: inline-flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
-.tables {
-
-	.table {
-		.table-text {
-			font-size: 0.8rem;
-		}
-		
-		.table-number {
-			font-size: 1.8rem;
-			font-weight: 900;
-			letter-spacing: 0.5px;
-			display: inline-block;
-			margin-right: 0.5em;
-		}
-
-		&.opened {
-			--border-width: 0 0px 0 0px;
-			--border-style: solid;
-			--border-color: var(--ion-color-primary);
-		}
-
-		/* &.closed {
-			--border-color: var(--ion-color-medium);
-		}
-
-		&.unavailable {
-			--border-color: var(--ion-color-danger);
-		} */
-	}
-}
-
-</style>

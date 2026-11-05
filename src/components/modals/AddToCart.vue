@@ -11,7 +11,7 @@
 
         <ion-content :fullscreen="true">
             <ion-card color="base">
-				<ion-card-header>
+				<ion-card-header  class="ion-no-padding ion-no-marging">
                     <ion-searchbar @ionInput="handleSearchProducts($event)" placeholder="Rechercher un produit" class="searchbar"></ion-searchbar>
                 </ion-card-header>
                 <ion-segment :scrollable="true" v-model="selectedCategory" @ionChange="handleSegmentChange($event)">

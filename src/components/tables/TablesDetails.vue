@@ -74,95 +74,95 @@
                 <ion-text class="ion-padding-start">Ajouter des articles</ion-text>
             </ion-button>
             <add-to-cart :table="currentTable"></add-to-cart>
-    </ion-content>
-
-    <ion-footer class="ion-display-flex ion-justify-content-center ion-padding">
-        <!-- if table is opened show close button else show open button -->
-        <ion-button v-if="currentTable.cart" color="light" fill="solid" size="large" expand="block" class="ion-flex-grow-1" @click="setOpen(true)">
-            <ion-icon :icon="create" slot="start"></ion-icon>
-           <ion-text>modifier</ion-text>
-       </ion-button>
-       <ion-button v-if="currentTable.cart" fill="solid" size="large" expand="block" @click="setAcceptCloseTable(true)" class="detail-table-close-btn ion-flex-grow-1">
-            <ion-icon :icon="lockClosed" slot="start" color="danger"></ion-icon>
-            <ion-text color="danger">Fermer la table</ion-text>
-        </ion-button>
-         <ion-button v-if="!currentTable.cart" expand="block" color="light" fill="solid"  size="large" @click="setCurrentTableStatus('unavailable')" :disabled="disableBtns" class="ion-flex-grow-1">
-            <ion-icon :icon="lockOpen" slot="start"></ion-icon>
-            <ion-text>Désactiver</ion-text>
-        </ion-button>
-         <ion-button v-if="!currentTable.cart" expand="block" fill="solid" class="ion-flex-grow-1 detail-table-open-btn" size="large" @click="setOpen(true)" :disabled="disableBtns">
-            <ion-icon :icon="lockOpen" slot="start" color="success"></ion-icon>
-            <ion-text color="success">Ouvrir la table</ion-text>
-        </ion-button>
-
-         <ion-modal ref="modal" :is-open="isOpen" @did-dismiss="setOpen(false)">
-            <ion-toolbar>
-                <ion-title>Informations</ion-title>
-                <ion-buttons slot="end">
-                    <ion-button @click="setOpen(false)">Fermer</ion-button>
-                </ion-buttons>
-            </ion-toolbar>
-            <ion-content class="ion-padding">
-                <ion-item lines="none">
-                    <ion-input 
-                        label="Libellé" 
-                        type="text"
-                        v-model="cartLibelle" 
-                        placeholder="Entrez le libellé"
-                        label-placement="floating"
-                        fill="outline" 
-                        class="ion-margin-vertical"
-                        helper-text="Le libellé est requis"
-                        required
-                        >
-                    </ion-input>
-                </ion-item>
-                <ion-item lines="none">
-                    <ion-input 
-                    label="Nombre de personnes" 
-                    type="number" 
-                    v-model="cartPeople" 
-                    fill="outline" 
-                    class="ion-margin-vertical"
-                    label-placement="floating"
-                    helper-text="Le nombre de personnes est requis"
-                    required
-                    ></ion-input>
-                 </ion-item>
-                <ion-button expand="block" color="success" @click="openUpdateTable()">
+            
+            <ion-footer class="ion-display-flex ion-justify-content-center " :translucent="true" style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: black;">
+                <!-- if table is opened show close button else show open button -->
+                <ion-button v-if="currentTable.cart" color="light" fill="solid" size="large" expand="block" class="ion-flex-grow-1" @click="setOpen(true)">
+                    <ion-icon :icon="create" slot="start"></ion-icon>
+                    <ion-text>modifier</ion-text>
+                </ion-button>
+                <ion-button v-if="currentTable.cart" fill="solid" size="large" expand="block" @click="setAcceptCloseTable(true)" class="detail-table-close-btn ion-flex-grow-1">
+                    <ion-icon :icon="lockClosed" slot="start" color="danger"></ion-icon>
+                    <ion-text color="danger">Fermer la table</ion-text>
+                </ion-button>
+                    <ion-button v-if="!currentTable.cart" expand="block" color="light" fill="solid"  size="large" @click="setCurrentTableStatus('unavailable')" :disabled="disableBtns" class="ion-flex-grow-1">
                     <ion-icon :icon="lockOpen" slot="start"></ion-icon>
-                    <ion-text>Confirmer</ion-text>
-                 </ion-button>  
-            </ion-content>
-        </ion-modal>
+                    <ion-text>Désactiver</ion-text>
+                </ion-button>
+                    <ion-button v-if="!currentTable.cart" expand="block" fill="solid" class="ion-flex-grow-1 detail-table-open-btn" size="large" @click="setOpen(true)" :disabled="disableBtns">
+                    <ion-icon :icon="lockOpen" slot="start" color="success"></ion-icon>
+                    <ion-text color="success">Ouvrir la table</ion-text>
+                </ion-button>
+        
+            </ion-footer>
+    </ion-content>
+    <ion-modal ref="modal" :is-open="isOpen" @did-dismiss="setOpen(false)">
+       <ion-toolbar>
+           <ion-title>Informations</ion-title>
+           <ion-buttons slot="end">
+               <ion-button @click="setOpen(false)">Fermer</ion-button>
+           </ion-buttons>
+       </ion-toolbar>
+       <ion-content class="ion-padding">
+           <ion-item lines="none">
+               <ion-input 
+                   label="Libellé" 
+                   type="text"
+                   v-model="cartLibelle" 
+                   placeholder="Entrez le libellé"
+                   label-placement="floating"
+                   fill="outline" 
+                   class="ion-margin-vertical"
+                   helper-text="Le libellé est requis"
+                   required
+                   >
+               </ion-input>
+           </ion-item>
+           <ion-item lines="none">
+               <ion-input 
+               label="Nombre de personnes" 
+               type="number" 
+               v-model="cartPeople" 
+               fill="outline" 
+               class="ion-margin-vertical"
+               label-placement="floating"
+               helper-text="Le nombre de personnes est requis"
+               required
+               ></ion-input>
+            </ion-item>
+           <ion-button expand="block" color="success" @click="openUpdateTable()">
+               <ion-icon :icon="lockOpen" slot="start"></ion-icon>
+               <ion-text>Confirmer</ion-text>
+            </ion-button>  
+       </ion-content>
+   </ion-modal>
 
-        <ion-alert  :is-open="isAlertOpen"
-            header="Erreur"
-            sub-header="Une erreur est survenue"
-            message="Une erreur est survenue lors de la mise à jour de la table."
-            :buttons="alertButtons"
-            @didDismiss="setAlertOpen(false)"
-            >
-        </ion-alert>
+   <ion-alert  :is-open="isAlertOpen"
+       header="Erreur"
+       sub-header="Une erreur est survenue"
+       message="Une erreur est survenue lors de la mise à jour de la table."
+       :buttons="alertButtons"
+       @didDismiss="setAlertOpen(false)"
+       >
+   </ion-alert>
 
-        <ion-alert  :is-open="acceptCloseTable"
-            header="Confirmation"
-            sub-header="Voulez-vous vraiment fermer la table ?"
-            message="Cette action est irréversible."
-            :buttons="acceptCloseTableButtons"
-            @didDismiss="setAcceptCloseTable(false)"
-            >
-        </ion-alert>
+   <ion-alert  :is-open="acceptCloseTable"
+       header="Confirmation"
+       sub-header="Voulez-vous vraiment fermer la table ?"
+       message="Cette action est irréversible."
+       :buttons="acceptCloseTableButtons"
+       @didDismiss="setAcceptCloseTable(false)"
+       >
+   </ion-alert>
 
-        <ion-alert :is-open="acceptRemoveCartItem"
-            header="Confirmation"
-            sub-header="Voulez-vous vraiment supprimer cet article du panier ?"
-            message="Cette action est irréversible."
-            :buttons="acceptRemoveCartItemButtons"
-            @didDismiss="setAcceptRemoveCartItem(false)"
-            >
-        </ion-alert>
-    </ion-footer>
+   <ion-alert :is-open="acceptRemoveCartItem"
+       header="Confirmation"
+       sub-header="Voulez-vous vraiment supprimer cet article du panier ?"
+       message="Cette action est irréversible."
+       :buttons="acceptRemoveCartItemButtons"
+       @didDismiss="setAcceptRemoveCartItem(false)"
+       >
+   </ion-alert>
 </template>
 
 <script setup lang="ts">
@@ -431,4 +431,5 @@ ion-button {
         --opacity: 0.5;
     }
 }
+
 </style>
