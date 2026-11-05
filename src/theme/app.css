@@ -32,6 +32,12 @@ ion-content {
     background: #111214;
 }
 
+ion-item-divider {
+    margin: 12px 0 0 0;
+    border-radius: 10px;
+    background: #111214;
+}
+
 ion-item-options {
     background: none;
     border: none;

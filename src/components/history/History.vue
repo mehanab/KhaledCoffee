@@ -54,8 +54,7 @@
             </ion-row>
         </ion-grid>
 
-        <ion-spinner v-if="loading" class="loading-spinner" />
-        <ion-text v-else-if="loadError" color="danger">
+        <ion-text v-if="loadError" color="danger">
             <p class="history-message">{{ loadError }}</p>
         </ion-text>
         <ion-text v-else-if="filteredOrders.length === 0" color="medium">
@@ -86,13 +85,12 @@
                 </p>
             </ion-label>
 
-            <ion-note slot="end">
-                {{ getItemCount(order) }} articles
-            </ion-note>
-
+            
             <ion-label slot="end" class="ion-text-end">
                 <h2>{{ formatAmount(order.total) }}</h2>
-                <p>{{ getStatusLabel(order) }}</p>
+                <ion-note >
+                    {{ getItemCount(order) }} articles
+                </ion-note>
             </ion-label>
         </ion-item>
 
@@ -118,7 +116,6 @@
                 <span class="order-count">{{ getItemCount(order) }} articles</span>
                 <span class="order-total">
                     <strong>{{ formatAmount(order.total) }}</strong>
-                    <span class="order-status">{{ getStatusLabel(order) }}</span>
                 </span>
                 <ion-icon class="order-chevron" :icon="chevronForwardOutline" />
             </div>
@@ -169,13 +166,6 @@
                         <ion-select-option value="all">Toutes</ion-select-option>
                         <ion-select-option v-for="table in tableOptions" :key="table.id" :value="table.id">
                             Table {{ table.name }}
-                        </ion-select-option>
-                    </ion-select>
-
-                    <ion-select v-model="selectedStatus" label="Statut" label-placement="stacked" interface="popover">
-                        <ion-select-option value="all">Tous</ion-select-option>
-                        <ion-select-option v-for="status in statusOptions" :key="status" :value="status">
-                            {{ status }}
                         </ion-select-option>
                     </ion-select>
 
@@ -326,13 +316,11 @@ const orderStore = useOrderStore();
 const tableStore = useTableStore();
 const orders = computed(() => orderStore.orders as HistoryOrder[]);
 const tables = computed(() => tableStore.tables as HistoryTable[]);
-const loading = ref(false);
 const loadError = ref('');
 const searchTerm = ref('');
 const selectedPeriod = ref<Period>('today');
 const selectedServer = ref('all');
 const selectedTable = ref('all');
-const selectedStatus = ref('all');
 const filtersModal = ref<{ $el: HTMLIonModalElement } | null>(null);
 const activeOrder = ref<HistoryOrder | null>(null);
 
@@ -352,11 +340,6 @@ const tableOptions = computed(() => tables.value.map(table => ({
     name: String(table.number),
 })));
 
-const statusOptions = computed(() => {
-    const values = getDistinctOrderValues(['payment_status', 'status']);
-    return values.length ? values : ['Terminée'];
-});
-
 const filteredOrders = computed(() => {
     const query = searchTerm.value.trim().toLocaleLowerCase('fr');
 
@@ -364,7 +347,6 @@ const filteredOrders = computed(() => {
         if (!isInSelectedPeriod(order.created_at)) return false;
         if (selectedServer.value !== 'all' && order.user_id !== selectedServer.value) return false;
         if (selectedTable.value !== 'all' && String(order.table_id) !== selectedTable.value) return false;
-        if (selectedStatus.value !== 'all' && getStatusLabel(order) !== selectedStatus.value) return false;
         if (!query) return true;
 
         const searchable = [
@@ -398,7 +380,6 @@ watch(() => route.path, (path, previousPath) => {
 });
 
 async function loadHistory() {
-    loading.value = true;
     loadError.value = '';
 
     try {
@@ -409,8 +390,6 @@ async function loadHistory() {
     } catch (error) {
         console.error('Erreur lors du chargement de l’historique :', error);
         loadError.value = 'Impossible de charger l’historique. Veuillez réessayer.';
-    } finally {
-        loading.value = false;
     }
 }
 
@@ -459,14 +438,6 @@ function getOrderValue(order: HistoryOrder, keys: string[]) {
         if (typeof value === 'string' && value.length) return value;
     }
     return '';
-}
-
-function getDistinctOrderValues(keys: string[]) {
-    return [...new Set(orders.value.map(order => getOrderValue(order, keys)).filter(Boolean))];
-}
-
-function getStatusLabel(order: HistoryOrder) {
-    return getOrderValue(order, ['payment_status', 'status']) || 'Terminée';
 }
 
 function formatAmount(value: number | string | null | undefined) {
@@ -628,7 +599,6 @@ ion-segment-button {
     font-size: 17px;
 }
 
-.loading-spinner,
 .history-message {
     display: block;
     margin: 24px auto;

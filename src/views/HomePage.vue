@@ -1,7 +1,7 @@
 <template>
 	<ion-page>
 		<!-- MENU -->
-		<ion-menu content-id="main-content">
+		<!-- <ion-menu content-id="main-content">
 			<ion-header>
 				<ion-toolbar>
 					<ion-title>Paramètres</ion-title>
@@ -10,7 +10,7 @@
 			<ion-content class="ion-padding">
 				This is the menu content.
 			</ion-content>
-		</ion-menu>
+		</ion-menu> -->
 		<ion-page id="main-content">
 			<ion-nav ref="nav" :root="component"></ion-nav>
 		</ion-page>

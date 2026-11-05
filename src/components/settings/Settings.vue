@@ -8,7 +8,7 @@
         <ion-item :button="true" class="ion-display-flex" lines="none" type="button" @click="setOpen(true, { id: 0, created_at: '', key: 'appname', value: appNameSetting })" color="base">
             <!-- // serache settings key: appname -->
             <ion-thumbnail  slot="start">
-                <img class="logo" src="/logo.svg"/>
+                <img class="logo" src="/pwa-192x192.png" style="width: 100%; height: 100%;"/>
             </ion-thumbnail>
             <ion-label>
                 <h2 class="">{{ appNameSetting }}</h2>

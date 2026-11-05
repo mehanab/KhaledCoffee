@@ -9,7 +9,7 @@
 					<ion-card-subtitle></ion-card-subtitle>
 					<ion-card-title><ion-text color="medium">Bonjour </ion-text>{{ auth.user && auth.user?.profile?.full_name ? auth.user?.profile?.full_name : auth.user?.email }}</ion-card-title>
 				</ion-card-header>
-				<ion-card-content class="tables">
+				<ion-card-content class="tables ion-no-padding">
 					<div class="ion-display-flex ion-justify-content-between ion-align-items-center">
 						<div class="tables-header ">
 							<ion-label slot="end">Tables ouvertes</ion-label>
@@ -112,7 +112,7 @@
 				</ion-card-content>
 			</ion-card>
 			<ion-fab vertical="bottom" horizontal="end" slot="fixed">
-				<ion-button  @click="setOpen(true)">
+				<ion-button  @click="setOpen(true)" class="btn-add-table">
 					<ion-icon :icon="add"></ion-icon>
 				</ion-button>
 			</ion-fab>
@@ -295,6 +295,14 @@ onUnmounted(() => {
   transform: translateY(-50%);
 }
 **/
+
+.btn-add-table {
+	--border-radius: 50%;
+	--padding-start: 1em;
+	--padding-end: 1em;
+	--padding-top: 1em;
+	--padding-bottom: 1em;
+}
 
 ion-thumbnail {
 	--size: 3em;
